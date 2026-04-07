@@ -13,13 +13,16 @@ export class FirebaseService implements OnModuleInit {
   onModuleInit() {
     // التأكد إنه لم يتم التهيئة من قبل
     if (!admin.apps.length) {
-      // تحديد مسار المفتاح السري باستخدام مسار المشروع الرئيسي لتفادي أخطاء الـ /dist/
-      const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
+      let credential;
+      if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
+        credential = admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS));
+      } else {
+        const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
+        credential = admin.credential.cert(require(serviceAccountPath));
+      }
       
       // تسجيل الدخول لقاعدة البيانات كأدمن
-      this.defaultApp = admin.initializeApp({
-        credential: admin.credential.cert(require(serviceAccountPath)),
-      });
+      this.defaultApp = admin.initializeApp({ credential });
       console.log('Firebase Admin Connected Successfully! 🔥');
     } else {
       this.defaultApp = admin.app();
