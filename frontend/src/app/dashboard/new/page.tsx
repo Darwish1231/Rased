@@ -166,25 +166,22 @@ export default function NewReportPage() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("لم يتم العثور على تذكرة أمنية");
 
-      // الرفع للخادم المحلي (Local Backend) لتفادي مشاكل الفايربيس (Option B)
+      // Option A: الرفع المباشر لـ Firebase Storage (الحل المثالي للإنتاج)
       if (files.length > 0) {
-        setUploadStatus("جاري رفع المرفقات للخادم...");
-        const uploadForm = new FormData();
-        files.forEach((file) => uploadForm.append('files', file));
+        setUploadStatus("جاري رفع المرفقات إلى السحاب (Firebase)...");
         
+        const uploadPromises = files.map(async (file) => {
+          const storageRef = ref(storage, `reports/${Date.now()}-${file.name}`);
+          const uploadResult = await uploadBytes(storageRef, file);
+          return await getDownloadURL(uploadResult.ref);
+        });
+
         try {
-          const uploadRes = await fetch("/api-proxy/reports/upload", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
-            body: uploadForm
-          });
-          
-          if (!uploadRes.ok) throw new Error("فشل في رفع المرفقات");
-          const uploadData = await uploadRes.json();
-          reportData.media.push(...(uploadData.urls || []));
-        } catch(uploadErr) {
-          console.error("Local upload error", uploadErr);
-          // سنكمل البلاغ حتى وإن فشل رفع الصور
+          const uploadedUrls = await Promise.all(uploadPromises);
+          reportData.media.push(...uploadedUrls);
+        } catch (uploadErr) {
+          console.error("Firebase Storage upload error:", uploadErr);
+          alert("فشل في رفع بعض الصور، سيتم إرسال البلاغ بدونها.");
         }
       }
 

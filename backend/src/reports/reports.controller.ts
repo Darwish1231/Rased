@@ -1,9 +1,5 @@
-import { Controller, Post, Get, Body, UseGuards, Patch, Param, Req, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Patch, Param, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import * as fs from 'fs';
 import { ReportsService } from './reports.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -25,27 +21,6 @@ export class ReportsController {
       message: 'تم إضافة البلاغ بنجاح',
       data: result,
     };
-  }
-
-  @Post('upload')
-  @UseInterceptors(FilesInterceptor('files', 10, {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        const uploadPath = join(__dirname, '..', '..', 'uploads');
-        if (!fs.existsSync(uploadPath)) {
-          fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + extname(file.originalname));
-      }
-    })
-  }))
-  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
-    const urls = files.map(file => `http://localhost:4000/uploads/${file.filename}`);
-    return { message: 'تم الرفع', urls };
   }
 
   @Get()
