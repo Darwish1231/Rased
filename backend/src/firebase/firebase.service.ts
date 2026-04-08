@@ -16,10 +16,16 @@ export class FirebaseService implements OnModuleInit {
       
       // الأولوية للمتغيرات المنفصلة (أسهل في Vercel وتمنع أخطاء التنسيق)
       if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+        // تنظيف المفتاح من أي علامات اقتباس زائدة أو فراغات في البداية والنهاية
+        privateKey = privateKey.trim().replace(/^"/, '').replace(/"$/, '');
+        // تحويل الـ \n النصية إلى أسطر حقيقية
+        privateKey = privateKey.replace(/\\n/g, '\n');
+        
         credential = admin.credential.cert({
           projectId: process.env.FIREBASE_PROJECT_ID,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          privateKey: privateKey,
         });
         console.log('Firebase Init: Using individual ENV variables ✅');
       } 
