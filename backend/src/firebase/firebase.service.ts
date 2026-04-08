@@ -15,7 +15,12 @@ export class FirebaseService implements OnModuleInit {
     if (!admin.apps.length) {
       let credential;
       if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
-        credential = admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS));
+        const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
+        // إصلاح مشكلة التفاف الأسطر في المفتاح الخاص التي تحدث غالباً في Vercel
+        if (config.private_key) {
+          config.private_key = config.private_key.replace(/\\n/g, '\n');
+        }
+        credential = admin.credential.cert(config);
       } else {
         const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
         credential = admin.credential.cert(require(serviceAccountPath));
