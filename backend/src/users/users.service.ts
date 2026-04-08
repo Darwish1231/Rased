@@ -19,7 +19,7 @@ export class UsersService {
     
     const data = doc.data() || {};
     // ترقية تلقائية للإيميل الخاص بصاحب الموقع ليكون الأدمن بمجرد تسجيل دخوله
-    if (data.email === 'admin1@rased.com' && data.role !== 'admin') {
+    if (data.email && data.email.toLowerCase() === 'admin1@rased.com' && data.role !== 'admin') {
       await docRef.update({ role: 'admin' });
       data.role = 'admin';
       console.log('User admin1@rased.com promoted to admin automatically! 👑');
