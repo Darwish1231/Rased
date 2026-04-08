@@ -50,7 +50,7 @@ export class AuthGuard implements CanActivate {
       request.user.profile = profileData;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('تذكرة الدخول (Token) غير صالحة أو منتهية الصلاحية.');
+      throw new UnauthorizedException(`تذكرة الدخول غير صالحة: ${error.message}`);
     }
   }
 }
