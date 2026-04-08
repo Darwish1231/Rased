@@ -25,8 +25,8 @@ export class FirebaseService implements OnModuleInit {
           // 2. تحويل الـ \n النصية إلى أسطر حقيقية
           privateKey = privateKey.replace(/\\n/g, '\n');
           
-          // 3. استخراج الجزء المشفر فقط (Base64) بين الترويسة والخاتمة
-          const match = privateKey.match(/-----BEGIN [^-]+-----([\s\S]*)-----END [^-]+-----/);
+          // 3. استخراج الجزء المشفر فقط (Base64) بين الترويسة والخاتمة (بشكل مرن للشرطات)
+          const match = privateKey.match(/---*BEGIN [^-]+---*([\s\S]*)---*END [^-]+---*/);
           if (match) {
             const body = match[1].replace(/\s/g, ''); // حذف أي مسافات أو أسطر داخلية
             privateKey = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----\n`;
