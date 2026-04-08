@@ -23,7 +23,19 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('لم يتم العثور على بروفايل المستخدم');
     }
 
-    const hasRole = requiredRoles.includes(userProfile.role);
+    // 1. استخراج الصلاحية من البروفايل (Firestore)
+    const userRole = userProfile?.role;
+    
+    // 2. التحقق من الإيميل مباشرة كصمام أمان للأدمن الأساسي
+    const userEmail = request.user?.email || '';
+    const isAdminEmail = userEmail.toLowerCase() === 'admin1@rased.com';
+
+    // 3. إذا كان المطلوب أدمن وهو معاه الإيميل ده، اسمح له فوراً
+    if (isAdminEmail && requiredRoles.includes('admin')) {
+      return true;
+    }
+
+    const hasRole = userRole && requiredRoles.includes(userRole);
     if (!hasRole) {
       throw new ForbiddenException('صلاحياتك لا تسمح لك بالقيام بهذا الإجراء');
     }
