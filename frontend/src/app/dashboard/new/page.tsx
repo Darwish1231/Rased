@@ -166,21 +166,31 @@ export default function NewReportPage() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error("لم يتم العثور على تذكرة أمنية");
 
-      // Option A: الرفع المباشر لـ Firebase Storage (الحل المثالي للإنتاج)
+      // Option C: الرفع لـ ImgBB (الحل المجاني البديل)
       if (files.length > 0) {
-        setUploadStatus("جاري رفع المرفقات إلى السحاب (Firebase)...");
+        setUploadStatus("جاري رفع الصور (ImgBB)...");
+        const IMGBB_API_KEY = "55abf413df6c6df7c09737f8e4364309";
         
         const uploadPromises = files.map(async (file) => {
-          const storageRef = ref(storage, `reports/${Date.now()}-${file.name}`);
-          const uploadResult = await uploadBytes(storageRef, file);
-          return await getDownloadURL(uploadResult.ref);
+          const body = new FormData();
+          body.append("key", IMGBB_API_KEY);
+          body.append("image", file);
+
+          const response = await fetch("https://api.imgbb.com/1/upload", {
+            method: "POST",
+            body: body
+          });
+
+          if (!response.ok) throw new Error("فشل رفع الصورة لـ ImgBB");
+          const result = await response.json();
+          return result.data.url; // الرابط المباشر للصورة
         });
 
         try {
           const uploadedUrls = await Promise.all(uploadPromises);
           reportData.media.push(...uploadedUrls);
         } catch (uploadErr) {
-          console.error("Firebase Storage upload error:", uploadErr);
+          console.error("ImgBB upload error:", uploadErr);
           alert("فشل في رفع بعض الصور، سيتم إرسال البلاغ بدونها.");
         }
       }
