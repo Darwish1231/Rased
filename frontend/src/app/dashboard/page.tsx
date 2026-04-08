@@ -125,9 +125,10 @@ export default function DashboardHome() {
             {getRoleBadge()}
           </h1>
           <p className="text-zinc-400 text-sm">
-            {userProfile?.role === 'admin' ? "متابعة شاملة لجميع الأعطال على مستوى النظام." : 
-             userProfile?.role === 'supervisor' ? "متابعة بلاغات المحطات التابعة لنطاق مسؤوليتك." :
-             "متابعة حالة البلاغات التي قمت برفعها."}
+            {userProfile?.email ? `متصل بحساب: ${userProfile.email}` : "جاري جلب البيانات..."}
+          </p>
+          <p className="text-[10px] text-zinc-600 mt-1">
+            API URL: {process.env.NEXT_PUBLIC_API_URL || "Hardcoded Fallback"}
           </p>
         </div>
         <a 
