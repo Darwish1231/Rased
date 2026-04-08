@@ -98,7 +98,7 @@ export default function SettingsPage() {
         stationScopes: editRole === "supervisor" ? editScopes : []
       };
 
-      const res = await fetch("/api-proxy/users/${userId}/role", {
+      const res = await fetch(`/api-proxy/users/${userId}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -171,7 +171,7 @@ export default function SettingsPage() {
     
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch("/api-proxy/stations/${stationId}", {
+      const res = await fetch(`/api-proxy/stations/${stationId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

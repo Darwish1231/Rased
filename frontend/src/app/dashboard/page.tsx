@@ -69,7 +69,7 @@ export default function DashboardHome() {
     if (!auth.currentUser) return;
     const token = await auth.currentUser.getIdToken();
     try {
-      const res = await fetch("/api-proxy/reports/${reportId}/status", {
+      const res = await fetch(`/api-proxy/reports/${reportId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
