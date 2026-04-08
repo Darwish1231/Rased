@@ -57,7 +57,7 @@ export default function NewReportPage() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const token = await user.getIdToken();
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations`, {
+        fetch("/api-proxy/stations", {
           headers: { "Authorization": `Bearer ${token}` }
         })
           .then(res => res.json())
@@ -173,7 +173,7 @@ export default function NewReportPage() {
         files.forEach((file) => uploadForm.append('files', file));
         
         try {
-          const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/reports/upload`, {
+          const uploadRes = await fetch("/api-proxy/reports/upload", {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: uploadForm
@@ -190,7 +190,7 @@ export default function NewReportPage() {
 
       setUploadStatus("جاري إرسال البلاغ...");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/reports`, {
+      const res = await fetch("/api-proxy/reports", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -26,7 +26,7 @@ export default function SettingsPage() {
       const token = await user.getIdToken();
       
       // جلب البروفايل الخاص بالشخص الحالي للتأكد انه أدمن
-      const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users/me`, {
+      const profileRes = await fetch("/api-proxy/users/me", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       let profile;
@@ -41,10 +41,10 @@ export default function SettingsPage() {
 
       if (profile?.role === 'admin') {
         const [usersRes, stationsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users`, {
+          fetch("/api-proxy/users", {
             headers: { "Authorization": `Bearer ${token}` }
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations`, {
+          fetch("/api-proxy/stations", {
             headers: { "Authorization": `Bearer ${token}` }
           })
         ]);
@@ -98,7 +98,7 @@ export default function SettingsPage() {
         stationScopes: editRole === "supervisor" ? editScopes : []
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users/${userId}/role`, {
+      const res = await fetch("/api-proxy/users/${userId}/role", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -145,7 +145,7 @@ export default function SettingsPage() {
         status: "active"
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations`, {
+      const res = await fetch("/api-proxy/stations", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -171,7 +171,7 @@ export default function SettingsPage() {
     
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations/${stationId}`, {
+      const res = await fetch("/api-proxy/stations/${stationId}", {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
