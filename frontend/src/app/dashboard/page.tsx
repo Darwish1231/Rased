@@ -126,16 +126,8 @@ export default function DashboardHome() {
             {getRoleBadge()}
           </h1>
           <p className="text-zinc-400 text-sm">
-            {userProfile ? `متصل بحساب: ${userProfile.email} (Auth: ${userProfile.authEmail}) - الدور الحالي: ${userProfile.role}` : "جاري جلب البيانات..."}
+            {userProfile ? `أهلاً بك: ${userProfile.email}` : "جاري جلب البيانات..."}
           </p>
-          <p className="text-[10px] text-zinc-600 mt-1">
-            API URL: https://rased-backend-vercel
-          </p>
-          {errorMessage && (
-            <div className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm">
-              🚨 {errorMessage}
-            </div>
-          )}
         </div>
         <a 
           href="/dashboard/new" 
