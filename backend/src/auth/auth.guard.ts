@@ -26,15 +26,24 @@ export class AuthGuard implements CanActivate {
 
       // جلب بيانات الحساب والدور (Role) من قاعدة البيانات وربطه بالطلب المبعوث
       const db = this.firebaseService.getFirestore();
-      const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+      const docRef = db.collection('users').doc(decodedToken.uid);
+      const userDoc = await docRef.get();
       
+      let profileData: any;
       if (userDoc.exists) {
-        request.user.profile = userDoc.data();
+        profileData = userDoc.data();
       } else {
-        // حماية افتراضية: لو لسه معندوش بروفايل في الداتابيز أو كان أول مرة يسجل
-        request.user.profile = { role: 'user', stationScopes: [] };
+        profileData = { email: decodedToken.email, role: 'user', stationScopes: [] };
       }
 
+      // ترقية تلقائية للإيميل الخاص بصاحب الموقع ليكون الأدمن بمجرد تسجيل دخوله
+      if (decodedToken.email && decodedToken.email.toLowerCase() === 'admin1@rased.com' && profileData.role !== 'admin') {
+        profileData.role = 'admin';
+        await docRef.set(profileData, { merge: true });
+        console.log(`User ${decodedToken.email} promoted to admin via AuthGuard! 👑`);
+      }
+
+      request.user.profile = profileData;
       return true;
     } catch (error) {
       throw new UnauthorizedException('تذكرة الدخول (Token) غير صالحة أو منتهية الصلاحية.');
