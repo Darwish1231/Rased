@@ -17,6 +17,7 @@ export default function DashboardHome() {
   const [reports, setReports] = useState<any[]>([]);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // States للبحث والفلترة
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,7 +38,7 @@ export default function DashboardHome() {
         setUserProfile(profile);
       } else {
         const errorText = await profileRes.text();
-        alert(`خطأ في جلب بيانات المستخدم: ${profileRes.status} \n التفاصيل: ${errorText}`);
+        setErrorMessage(`خطأ ${profileRes.status}: ${errorText}`);
       }
 
       // جلب البلاغات
@@ -130,6 +131,11 @@ export default function DashboardHome() {
           <p className="text-[10px] text-zinc-600 mt-1">
             API URL: https://rased-backend-vercel
           </p>
+          {errorMessage && (
+            <div className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm">
+              🚨 {errorMessage}
+            </div>
+          )}
         </div>
         <a 
           href="/dashboard/new" 
