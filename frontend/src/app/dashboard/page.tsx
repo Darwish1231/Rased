@@ -125,10 +125,10 @@ export default function DashboardHome() {
             {getRoleBadge()}
           </h1>
           <p className="text-zinc-400 text-sm">
-            {userProfile?.email ? `متصل بحساب: ${userProfile.email}` : "جاري جلب البيانات..."}
+            {userProfile ? `متصل بحساب: ${userProfile.email} (Auth: ${userProfile.authEmail}) - الدور الحالي: ${userProfile.role}` : "جاري جلب البيانات..."}
           </p>
           <p className="text-[10px] text-zinc-600 mt-1">
-            API URL: {process.env.NEXT_PUBLIC_API_URL || "Hardcoded Fallback"}
+            API URL: https://rased-backend-vercel
           </p>
         </div>
         <a 

@@ -14,7 +14,8 @@ export class UsersController {
    */
   @Get('me')
   async getMyProfile(@Req() req: any) {
-    return this.usersService.getUserById(req.user.uid);
+    const profile = await this.usersService.getUserById(req.user.uid);
+    return { ...profile, authEmail: req.user.email };
   }
 
   /**
