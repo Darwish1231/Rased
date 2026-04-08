@@ -11,22 +11,32 @@ export class FirebaseService implements OnModuleInit {
   private defaultApp: admin.app.App;
 
   onModuleInit() {
-    // التأكد إنه لم يتم التهيئة من قبل
     if (!admin.apps.length) {
       let credential;
-      if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
+      
+      // الأولوية للمتغيرات المنفصلة (أسهل في Vercel وتمنع أخطاء التنسيق)
+      if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
+        credential = admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        });
+        console.log('Firebase Init: Using individual ENV variables ✅');
+      } 
+      // البديل: ملف الـ JSON الكامل
+      else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
         const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
-        // إصلاح مشكلة التفاف الأسطر في المفتاح الخاص التي تحدث غالباً في Vercel
         if (config.private_key) {
           config.private_key = config.private_key.replace(/\\n/g, '\n');
         }
         credential = admin.credential.cert(config);
+        console.log('Firebase Init: Using JSON string ✅');
       } else {
         const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
         credential = admin.credential.cert(require(serviceAccountPath));
+        console.log('Firebase Init: Using local file 🏠');
       }
       
-      // تسجيل الدخول لقاعدة البيانات كأدمن
       this.defaultApp = admin.initializeApp({ credential });
       console.log('Firebase Admin Connected Successfully! 🔥');
     } else {
