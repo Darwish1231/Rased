@@ -19,26 +19,18 @@ export class FirebaseService implements OnModuleInit {
         if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
           let privateKey = process.env.FIREBASE_PRIVATE_KEY;
           
-          // 1. تنظيف شامل من المسافات وعلامات الاقتباس الخارجية
+          // 1. تنظيف بسيط جداً
           privateKey = privateKey.trim().replace(/^["']/, '').replace(/["']$/, '');
           
-          // 2. تحويل الـ \n النصية إلى أسطر حقيقية
+          // 2. تحويل الـ \n النصية فقط
           privateKey = privateKey.replace(/\\n/g, '\n');
-          
-          // 3. استخراج الجزء المشفر فقط (Base64) بين الترويسة والخاتمة (بشكل مرن للشرطات)
-          const match = privateKey.match(/---*BEGIN [^-]+---*([\s\S]*)---*END [^-]+---*/);
-          if (match) {
-            const body = match[1].replace(/\s/g, ''); // حذف أي مسافات أو أسطر داخلية تماماً
-            const chunkedBody = body.match(/.{1,64}/g)?.join('\n') || body;
-            privateKey = `-----BEGIN PRIVATE KEY-----\n${chunkedBody}\n-----END PRIVATE KEY-----\n`;
-          }
           
           credential = admin.credential.cert({
             projectId: process.env.FIREBASE_PROJECT_ID,
             clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
             privateKey: privateKey,
           });
-          console.log('Firebase Init: Regex-based Key Sanitizer Applied ✅');
+          console.log('Firebase Init: Simple Sanitize Applied ✅');
         } 
         // البديل: ملف الـ JSON الكامل
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
