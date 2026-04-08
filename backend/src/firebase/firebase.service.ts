@@ -19,18 +19,25 @@ export class FirebaseService implements OnModuleInit {
       if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
         const projectId = process.env.FIREBASE_PROJECT_ID.trim();
         const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
-        let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY;
         
-        // تنظيف شامل للمفتاح من أخطاء الـ Enter أو الـ Spaces الزائدة
-        privateKey = privateKey.replace(/\\n/g, '\n'); // تحويل النص لأسطر
-        privateKey = privateKey.split('\n').map(line => line.trim()).filter(line => line).join('\n'); // تنظيف كل سطر وحذف الأسطر الفارغة
+        // 1. التعامل مع الأسطر (الأسطر المائلة أو الحقيقية)
+        privateKey = privateKey.replace(/\\n/g, '\n');
+        privateKey = privateKey.trim();
+        
+        // 2. فحص بسيط للتأكد من وجود الأسطر حول الترويسة
+        if (!privateKey.includes('\n')) {
+          privateKey = privateKey
+            .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
+            .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
+        }
         
         credential = admin.credential.cert({
           projectId: projectId,
           clientEmail: clientEmail,
           privateKey: privateKey,
         });
-        console.log('Firebase Init: Deep Sanitize Applied ✅');
+        console.log('Firebase Init: Final-Stage Sanitize Applied ✅');
       } 
         // البديل: ملف الـ JSON الكامل
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
