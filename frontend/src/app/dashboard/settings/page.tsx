@@ -26,7 +26,7 @@ export default function SettingsPage() {
       const token = await user.getIdToken();
       
       // جلب البروفايل الخاص بالشخص الحالي للتأكد انه أدمن
-      const profileRes = await fetch("http://localhost:4000/users/me", {
+      const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       let profile;
@@ -41,10 +41,10 @@ export default function SettingsPage() {
 
       if (profile?.role === 'admin') {
         const [usersRes, stationsRes] = await Promise.all([
-          fetch("http://localhost:4000/users", {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users`, {
             headers: { "Authorization": `Bearer ${token}` }
           }),
-          fetch("http://localhost:4000/stations", {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations`, {
             headers: { "Authorization": `Bearer ${token}` }
           })
         ]);
@@ -98,7 +98,7 @@ export default function SettingsPage() {
         stationScopes: editRole === "supervisor" ? editScopes : []
       };
 
-      const res = await fetch(`http://localhost:4000/users/${userId}/role`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users/${userId}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -145,7 +145,7 @@ export default function SettingsPage() {
         status: "active"
       };
 
-      const res = await fetch("http://localhost:4000/stations", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -171,7 +171,7 @@ export default function SettingsPage() {
     
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`http://localhost:4000/stations/${stationId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/stations/${stationId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

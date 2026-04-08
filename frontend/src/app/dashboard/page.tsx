@@ -27,7 +27,7 @@ export default function DashboardHome() {
       const token = await user.getIdToken();
       
       // جلب البروفايل لمعرفة الصلاحية (Role)
-      const profileRes = await fetch("http://localhost:4000/users/me", {
+      const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/users/me`, {
         headers: { "Authorization": `Bearer ${token}` },
         cache: 'no-store'
       });
@@ -41,7 +41,7 @@ export default function DashboardHome() {
       }
 
       // جلب البلاغات
-      const reportsRes = await fetch("http://localhost:4000/reports", {
+      const reportsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/reports`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (reportsRes.ok) {
@@ -68,7 +68,7 @@ export default function DashboardHome() {
     if (!auth.currentUser) return;
     const token = await auth.currentUser.getIdToken();
     try {
-      const res = await fetch(`http://localhost:4000/reports/${reportId}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app"}/reports/${reportId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
