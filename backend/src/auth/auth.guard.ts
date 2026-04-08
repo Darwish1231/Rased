@@ -37,10 +37,14 @@ export class AuthGuard implements CanActivate {
       }
 
       // ترقية تلقائية للإيميل الخاص بصاحب الموقع ليكون الأدمن بمجرد تسجيل دخوله
-      if (decodedToken.email && decodedToken.email.toLowerCase() === 'admin1@rased.com' && profileData.role !== 'admin') {
+      if (decodedToken.email && decodedToken.email.toLowerCase() === 'admin1@rased.com') {
+        if (profileData.role !== 'admin') {
+          profileData.role = 'admin';
+          await docRef.set(profileData, { merge: true });
+          console.log(`User ${decodedToken.email} promoted to admin via AuthGuard! 👑`);
+        }
+        // Force the role in memory even if DB update is slow or failing
         profileData.role = 'admin';
-        await docRef.set(profileData, { merge: true });
-        console.log(`User ${decodedToken.email} promoted to admin via AuthGuard! 👑`);
       }
 
       request.user.profile = profileData;
