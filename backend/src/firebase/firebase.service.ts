@@ -17,17 +17,29 @@ export class FirebaseService implements OnModuleInit {
       // الأولوية للمتغيرات المنفصلة (أسهل في Vercel وتمنع أخطاء التنسيق)
       if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
         let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-        // تنظيف المفتاح من أي علامات اقتباس زائدة أو فراغات في البداية والنهاية
-        privateKey = privateKey.trim().replace(/^"/, '').replace(/"$/, '');
-        // تحويل الـ \n النصية إلى أسطر حقيقية
-        privateKey = privateKey.replace(/\\n/g, '\n');
+        
+        // 1. تنظيف شامل من المسافات وعلامات الاقتباس الخارجية
+        privateKey = privateKey.trim().replace(/^["']/, '').replace(/["']$/, '');
+        
+        // 2. تحويل الـ \n النصية (بشرطة مائلة واحدة أو اثنين) إلى أسطر حقيقية
+        privateKey = privateKey.replace(/\\n/g, '\n').replace(/\n/g, '\n');
+        
+        // 3. التأكد من أن الترويسة والخاتمة في أسطر مستقلة وبدون مسافات داخلية
+        if (privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+          const body = privateKey
+            .replace('-----BEGIN PRIVATE KEY-----', '')
+            .replace('-----END PRIVATE KEY-----', '')
+            .replace(/\s+/g, '\n') // تحويل أي مسافة داخلية لسطر جديد
+            .trim();
+          privateKey = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----\n`;
+        }
         
         credential = admin.credential.cert({
           projectId: process.env.FIREBASE_PROJECT_ID,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
           privateKey: privateKey,
         });
-        console.log('Firebase Init: Using individual ENV variables ✅');
+        console.log('Firebase Init: Super-Robust Key Sanitizer Applied ✅');
       } 
       // البديل: ملف الـ JSON الكامل
       else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
