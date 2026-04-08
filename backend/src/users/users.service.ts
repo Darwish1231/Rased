@@ -10,13 +10,22 @@ export class UsersService {
    */
   async getUserById(uid: string) {
     const db = this.firebaseService.getFirestore();
-    const doc = await db.collection('users').doc(uid).get();
+    const docRef = db.collection('users').doc(uid);
+    const doc = await docRef.get();
     
     if (!doc.exists) {
       throw new NotFoundException('المستخدم غير موجود');
     }
     
-    return { id: doc.id, ...doc.data() };
+    const data = doc.data() || {};
+    // ترقية تلقائية للإيميل الخاص بصاحب الموقع ليكون الأدمن بمجرد تسجيل دخوله
+    if (data.email === 'admin1@rased.com' && data.role !== 'admin') {
+      await docRef.update({ role: 'admin' });
+      data.role = 'admin';
+      console.log('User admin1@rased.com promoted to admin automatically! 👑');
+    }
+    
+    return { id: doc.id, ...data };
   }
 
   /**
