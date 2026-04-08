@@ -282,45 +282,52 @@ export default function DashboardHome() {
                         </div>
                       </div>
                     </td>
-                    <td className="p-5">
-                      {/* Select Status Interaction (Admin & Supervisor) */}
-                      {(userProfile?.role === 'admin' || userProfile?.role === 'supervisor') ? (
-                        <div className="relative inline-block w-full min-w-[140px]">
-                          <select 
-                            className={`w-full appearance-none border rounded-xl text-xs font-bold px-3 py-2 cursor-pointer transition-colors focus:outline-none focus:ring-2 pr-8
-                              ${report.status === 'resolved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-emerald-500/50' : 
-                                report.status === 'in_review' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 
-                                report.status === 'assigned' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' : 
-                                report.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 
-                                'bg-zinc-800 text-white border-zinc-700 hover:border-zinc-500'}
-                            `}
-                            value={report.status || 'new'}
-                            onChange={(e) => handleUpdateStatus(report.id, e.target.value)}
-                          >
-                            <option value="new" className="bg-zinc-900 text-white">جديد 🔴</option>
-                            <option value="in_review" className="bg-zinc-900 text-white">جاري الفحص ⏳</option>
-                            <option value="assigned" className="bg-zinc-900 text-white">تم التكليف 👷</option>
-                            <option value="resolved" className="bg-zinc-900 text-white">تم الحل ✅</option>
-                            <option value="rejected" className="bg-zinc-900 text-white">مرفوض ❌</option>
-                          </select>
-                          <ArrowUpDown className="w-3 h-3 text-zinc-500 absolute right-3 top-2.5 pointer-events-none" />
-                        </div>
-                      ) : (
-                        <span className={`px-3 py-1.5 text-xs rounded-xl font-bold border inline-block text-center min-w-[100px]
-                          ${report.status === 'resolved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 
-                            report.status === 'in_review' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 
-                            report.status === 'assigned' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' : 
-                            report.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 
-                            'bg-zinc-800 text-zinc-300 border-zinc-700'}
-                        `}>
-                          {report.status === 'resolved' ? 'تم الحل ✅' : 
-                           report.status === 'in_review' ? 'قيد الفحص ⏳' : 
-                           report.status === 'assigned' ? 'تم التكليف 👷' : 
-                           report.status === 'rejected' ? 'مرفوض ❌' : 
-                           'جديد 🔴'}
-                        </span>
-                      )}
-                    </td>
+                      <div className="flex flex-col gap-2">
+                        {/* Status Select/Badge */}
+                        {(userProfile?.role === 'admin' || userProfile?.role === 'supervisor') ? (
+                          <div className="relative inline-block w-full min-w-[140px]">
+                            <select 
+                              className={`w-full appearance-none border rounded-xl text-xs font-bold px-3 py-2 cursor-pointer transition-colors focus:outline-none focus:ring-2 pr-8
+                                ${report.status === 'resolved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-emerald-500/50' : 
+                                  report.status === 'in_review' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 
+                                  report.status === 'assigned' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' : 
+                                  report.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 
+                                  'bg-zinc-800 text-white border-zinc-700 hover:border-zinc-500'}
+                              `}
+                              value={report.status || 'new'}
+                              onChange={(e) => handleUpdateStatus(report.id, e.target.value)}
+                            >
+                              <option value="new" className="bg-zinc-900 text-white">جديد 🔴</option>
+                              <option value="in_review" className="bg-zinc-900 text-white">جاري الفحص ⏳</option>
+                              <option value="assigned" className="bg-zinc-900 text-white">تم التكليف 👷</option>
+                              <option value="resolved" className="bg-zinc-900 text-white">تم الحل ✅</option>
+                              <option value="rejected" className="bg-zinc-900 text-white">مرفوض ❌</option>
+                            </select>
+                            <ArrowUpDown className="w-3 h-3 text-zinc-500 absolute right-3 top-2.5 pointer-events-none" />
+                          </div>
+                        ) : (
+                          <span className={`px-3 py-1.5 text-xs rounded-xl font-bold border inline-block text-center min-w-[100px]
+                            ${report.status === 'resolved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 
+                              report.status === 'in_review' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 
+                              report.status === 'assigned' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' : 
+                              report.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 
+                              'bg-zinc-800 text-zinc-300 border-zinc-700'}
+                          `}>
+                            {report.status === 'resolved' ? 'تم الحل ✅' : 
+                             report.status === 'in_review' ? 'قيد الفحص ⏳' : 
+                             report.status === 'assigned' ? 'تم التكليف 👷' : 
+                             report.status === 'rejected' ? 'مرفوض ❌' : 
+                             'جديد 🔴'}
+                          </span>
+                        )}
+                        
+                        <a 
+                          href={`/dashboard/${report.id}`}
+                          className="text-[10px] text-center text-zinc-500 hover:text-blue-400 underline decoration-zinc-700"
+                        >
+                          عرض التفاصيل والخط الزمني
+                        </a>
+                      </div>
                   </tr>
                 ))
               )}

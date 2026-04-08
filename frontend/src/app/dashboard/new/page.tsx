@@ -210,6 +210,8 @@ export default function NewReportPage() {
         throw new Error("فشل في حفظ البلاغ بالخادم أو التذكرة مرفوضة");
       }
 
+      const finalData = await res.json();
+      alert(`تم إرسال البلاغ بنجاح! رقم البلاغ: ${finalData.data.id}`);
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Upload Error:", err);
