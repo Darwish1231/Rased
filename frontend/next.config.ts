@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api-proxy/:path*",
-        destination: "https://rased-avf8-64c1os9rt-darwish1231s-projects.vercel.app/:path*",
+        destination: "https://rased-avf8.vercel.app/:path*",
       },
     ];
   },
