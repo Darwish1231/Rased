@@ -25,14 +25,10 @@ export class FirebaseService implements OnModuleInit {
           // 2. تحويل الـ \n النصية إلى أسطر حقيقية
           privateKey = privateKey.replace(/\\n/g, '\n');
           
-          // 3. التأكد من أن الترويسة والخاتمة في أسطر مستقلة وبدون مسافات داخلية
-          if (privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-            const body = privateKey
-              .replace('-----BEGIN PRIVATE KEY-----', '')
-              .replace('-----END PRIVATE KEY-----', '')
-              .replace(/\s+/g, '') // حذف أي مسافات داخلية تماماً
-              .match(/.{1,64}/g) // تقسيم الكود لأسطر طولها 64 حرف (معياري)
-              ?.join('\n') || '';
+          // 3. استخراج الجزء المشفر فقط (Base64) بين الترويسة والخاتمة
+          const match = privateKey.match(/-----BEGIN [^-]+-----([\s\S]*)-----END [^-]+-----/);
+          if (match) {
+            const body = match[1].replace(/\s/g, ''); // حذف أي مسافات أو أسطر داخلية
             privateKey = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----\n`;
           }
           
@@ -41,7 +37,7 @@ export class FirebaseService implements OnModuleInit {
             clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
             privateKey: privateKey,
           });
-          console.log('Firebase Init: Super-Robust Key Sanitizer Applied ✅');
+          console.log('Firebase Init: Regex-based Key Sanitizer Applied ✅');
         } 
         // البديل: ملف الـ JSON الكامل
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
