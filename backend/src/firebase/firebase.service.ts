@@ -16,20 +16,25 @@ export class FirebaseService implements OnModuleInit {
         let credential;
         
         // الأولوية للمتغيرات المنفصلة (أسهل في Vercel وتمنع أخطاء التنسيق)
-      if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
-        const projectId = process.env.FIREBASE_PROJECT_ID.trim();
+      if (process.env.FIREBASE_PROJECT_ID || process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_CLIENT_EMAIL) {
+        const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
         const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
-        let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY?.trim();
         
-        // 1. التعامل مع الأسطر (الأسطر المائلة أو الحقيقية)
+        if (!projectId || !clientEmail || !privateKey) {
+          const missing: string[] = [];
+          if (!projectId) missing.push('FIREBASE_PROJECT_ID');
+          if (!clientEmail) missing.push('FIREBASE_CLIENT_EMAIL');
+          if (!privateKey) missing.push('FIREBASE_PRIVATE_KEY');
+          throw new Error(`Missing Environment Variables in Vercel: ${missing.join(', ')}`);
+        }
+        
+        // تنظيف شامل للمفتاح
         privateKey = privateKey.replace(/\\n/g, '\n');
-        privateKey = privateKey.trim();
-        
-        // 2. فحص بسيط للتأكد من وجود الأسطر حول الترويسة
-        if (!privateKey.includes('\n')) {
-          privateKey = privateKey
-            .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
-            .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
+        privateKey = privateKey.split('\n').map(line => line.trim()).filter(line => line).join('\n');
+        // تأكيد وجود الشرطات
+        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+            privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----`;
         }
         
         credential = admin.credential.cert({
