@@ -56,9 +56,9 @@ export class FirebaseService implements OnModuleInit {
         this.defaultApp = admin.initializeApp({ credential });
         console.log('Firebase Admin Connected Successfully! 🔥');
       } catch (error) {
-        // فحص آمن لبداية المفتاح للمساعدة في التشخيص
         const rawKey = process.env.FIREBASE_PRIVATE_KEY || '';
-        const snippet = `Len: ${rawKey.length}, Start: ${rawKey.substring(0, 15)}...`;
+        const hex = Buffer.from(rawKey.substring(0, 5)).toString('hex');
+        const snippet = `Len: ${rawKey.length}, StartHex: ${hex}, Start: ${rawKey.substring(0, 15)}...`;
         throw new Error(`Failed to initialize Firebase: ${error.message} (Debug Info: ${snippet})`);
       }
     } else {
