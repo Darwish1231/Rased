@@ -14,7 +14,7 @@ export class UsersService {
     const doc = await docRef.get();
     
     if (!doc.exists) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('المستخدم غير موجود');
     }
     
     const data = doc.data() || {};
@@ -69,6 +69,6 @@ export class UsersService {
       stationScopes
     });
     
-    return { message: 'User role updated successfully' };
+    return { message: 'تم تحديث صلاحية المستخدم بنجاح' };
   }
 }

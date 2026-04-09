@@ -101,12 +101,12 @@ export default function NewReportPage() {
         },
         (error) => {
           console.error("Error getting location: ", error);
-          alert("Cannot access current location. Please ensure GPS permissions are enabled in your browser.");
+          alert("تعذر الوصول للموقع الحالي. يرجى التأكد من تفعيل صلاحيات الـ GPS في متصفحك.");
           setLocating(false);
         }
       );
     } else {
-      alert("Your browser does not support geolocation.");
+      alert("متصفحك لا يدعم خاصية تحديد الموقع.");
       setLocating(false);
     }
   };
@@ -139,12 +139,12 @@ export default function NewReportPage() {
     const severity = formData.get("severity");
     const description = formData.get("description");
 
-    if (!stationId) { alert("Please select a station from the list."); return; }
-    if (!category) { alert("Please select a problem category."); return; }
-    if (!severity) { alert("Please select a severity level."); return; }
-    if (!description) { alert("Please provide a description of the issue."); return; }
+    if (!stationId) { alert("من فضلك اختر المحطة من القائمة."); return; }
+    if (!category) { alert("من فضلك اختر تصنيف العطل."); return; }
+    if (!severity) { alert("من فضلك اختر مستوى الخطورة."); return; }
+    if (!description) { alert("من فضلك اكتب وصفاً للمشكلة."); return; }
     if (!location) {
-      alert("Please select the incident location on the map.");
+      alert("من فضلك حدد موقع العطل على الخريطة.");
       return;
     }
 
@@ -168,7 +168,7 @@ export default function NewReportPage() {
 
       // Option C: الرفع لـ ImgBB (الحل المجاني البديل)
       if (files.length > 0) {
-        setUploadStatus("Uploading images (ImgBB)...");
+        setUploadStatus("جاري رفع الصور (ImgBB)...");
         const IMGBB_API_KEY = "55abf413df6c6df7c09737f8e4364309";
         
         const uploadPromises = files.map(async (file) => {
@@ -191,11 +191,11 @@ export default function NewReportPage() {
           reportData.media.push(...uploadedUrls);
         } catch (uploadErr) {
           console.error("ImgBB upload error:", uploadErr);
-          alert("Failed to upload some images. The report will be submitted without them.");
+          alert("فشل رفع بعض الصور. سيتم إرسال البلاغ بدونها.");
         }
       }
 
-      setUploadStatus("Submitting report...");
+      setUploadStatus("جاري إرسال البلاغ...");
 
       const res = await fetch("/api-proxy/reports", {
         method: "POST",
@@ -211,11 +211,11 @@ export default function NewReportPage() {
       }
 
       const finalData = await res.json();
-      alert(`Report submitted successfully! ID: ${finalData.data.id}`);
+      alert(`تم إرسال البلاغ بنجاح! رقم البلاغ: ${finalData.data.id}`);
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Upload Error:", err);
-      alert(`An error occurred: ${err?.message || "Internal submission error"}`);
+      alert(`حدث خطأ: ${err?.message || "خطأ داخلي في الإرسال"}`);
     } finally {
       setLoading(false);
       setUploadStatus("");
@@ -226,8 +226,8 @@ export default function NewReportPage() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500" dir="rtl">
       
       <div className="flex flex-col items-start mb-8">
-        <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">Create New Report</h1>
-        <p className="text-zinc-400">Please provide all necessary details to ensure a prompt response.</p>
+        <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">إنشاء بلاغ جديد</h1>
+        <p className="text-zinc-400">يرجى تقديم كافة التفاصيل اللازمة لضمان سرعة الاستجابة.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -237,14 +237,14 @@ export default function NewReportPage() {
           <div className="space-y-6">
             <Card className="bg-zinc-900/50 backdrop-blur-sm border-zinc-800 p-6 rounded-[1.5rem] shadow-xl">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-white">
-                <AlertTriangle className="text-amber-500 w-5 h-5" /> Incident Details
+                <AlertTriangle className="text-amber-500 w-5 h-5" /> تفاصيل العطل
               </h2>
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-zinc-300 font-semibold">Affected Station</Label>
+                  <Label className="text-zinc-300 font-semibold">المحطة المتضررة</Label>
                   <select name="stationId" className="w-full bg-zinc-950/50 border border-zinc-800 text-white rounded-xl h-12 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none" defaultValue="">
-                    <option value="" disabled>Select station...</option>
+                    <option value="" disabled>اختر المحطة...</option>
                     {stations.map(st => (
                       <option key={st.id} value={st.id}>{st.name}</option>
                     ))}
@@ -252,38 +252,38 @@ export default function NewReportPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="text-zinc-300 font-semibold">Category</Label>
+                  <Label className="text-zinc-300 font-semibold">تصنيف العطل</Label>
                   <select name="category" className="w-full bg-zinc-950/50 border border-zinc-800 text-white rounded-xl h-12 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none" defaultValue="">
-                    <option value="" disabled>Select problem type...</option>
-                    <option value="electricity">Electrical Fault</option>
-                    <option value="safety">Safety or Emergency Office</option>
-                    <option value="equipment">Equipment Failure</option>
-                    <option value="cleaning">Maintenance/Cleaning</option>
-                    <option value="other">Other</option>
+                    <option value="" disabled>اختر نوع المشكلة...</option>
+                    <option value="electricity">عطل كهربائي</option>
+                    <option value="safety">أمن وسلامة</option>
+                    <option value="equipment">عطل معدات</option>
+                    <option value="cleaning">صيانة / نظافة</option>
+                    <option value="other">أخرى</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-zinc-300 font-semibold">Severity Level</Label>
+                  <Label className="text-zinc-300 font-semibold">مستوى الخطورة</Label>
                   <div className="flex gap-3">
                     <label className="flex-1 cursor-pointer">
                       <input type="radio" name="severity" value="low" className="peer sr-only" />
-                      <div className="p-3 text-center rounded-xl border border-zinc-800 text-zinc-400 peer-checked:bg-emerald-500/10 peer-checked:text-emerald-500 peer-checked:border-emerald-500 hover:bg-zinc-800 focus:bg-zinc-800 transition-all font-semibold">Low</div>
+                      <div className="p-3 text-center rounded-xl border border-zinc-800 text-zinc-400 peer-checked:bg-emerald-500/10 peer-checked:text-emerald-500 peer-checked:border-emerald-500 hover:bg-zinc-800 focus:bg-zinc-800 transition-all font-semibold">عادية</div>
                     </label>
                     <label className="flex-1 cursor-pointer">
                       <input type="radio" name="severity" value="medium" className="peer sr-only" />
-                      <div className="p-3 text-center rounded-xl border border-zinc-800 text-zinc-400 peer-checked:bg-amber-500/10 peer-checked:text-amber-500 peer-checked:border-amber-500 hover:bg-zinc-800 transition-all font-semibold">Medium</div>
+                      <div className="p-3 text-center rounded-xl border border-zinc-800 text-zinc-400 peer-checked:bg-amber-500/10 peer-checked:text-amber-500 peer-checked:border-amber-500 hover:bg-zinc-800 transition-all font-semibold">متوسطة</div>
                     </label>
                     <label className="flex-1 cursor-pointer">
                       <input type="radio" name="severity" value="high" className="peer sr-only" />
-                      <div className="p-3 text-center rounded-xl border border-zinc-800 text-zinc-400 peer-checked:bg-red-500/10 peer-checked:text-red-500 peer-checked:border-red-500 hover:bg-zinc-800 transition-all font-semibold">High</div>
+                      <div className="p-3 text-center rounded-xl border border-zinc-800 text-zinc-400 peer-checked:bg-red-500/10 peer-checked:text-red-500 peer-checked:border-red-500 hover:bg-zinc-800 transition-all font-semibold">عالية جداً</div>
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-zinc-300 font-semibold">Issue Description</Label>
-                  <textarea name="description" rows={4} placeholder="Describe the fault in detail..." className="w-full bg-zinc-950/50 border border-zinc-800 text-white rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none placeholder:text-zinc-600"></textarea>
+                  <Label className="text-zinc-300 font-semibold">وصف المشكلة</Label>
+                  <textarea name="description" rows={4} placeholder="اشرح العطل بالتفصيل..." className="w-full bg-zinc-950/50 border border-zinc-800 text-white rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none placeholder:text-zinc-600"></textarea>
                 </div>
               </div>
             </Card>
@@ -295,10 +295,10 @@ export default function NewReportPage() {
             <Card className="bg-zinc-900/50 backdrop-blur-sm border-zinc-800 p-6 rounded-[1.5rem] shadow-xl">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold flex items-center gap-2 text-white">
-                  <MapPin className="text-blue-500 w-5 h-5" /> Location Selection (GPS)
+                  <MapPin className="text-blue-500 w-5 h-5" /> تحديد الموقع (GPS)
                 </h2>
                 <Button type="button" onClick={handleGetLocation} disabled={locating} variant="outline" className="h-8 text-xs border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 rounded-lg">
-                  {locating ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : "Use Current Location"}
+                  {locating ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : "استخدام موقعي الحالي"}
                 </Button>
               </div>
               
@@ -315,23 +315,22 @@ export default function NewReportPage() {
                   </GoogleMap>
                 ) : (
                   <div className="h-[300px] flex flex-col items-center justify-center bg-zinc-950/50 border border-zinc-800 rounded-2xl text-zinc-500 text-sm p-4 text-center">
-                    <p className="mb-2">The map is currently disabled (API Key not provided).</p>
-                    <p className="text-emerald-400 font-bold">You can still proceed! Click "Use Current Location" above to automatically detect coordinates and submit the report.</p>
+                    <p className="mb-2">الخريطة معطلة حالياً (كود الـ API غير متوفر).</p>
+                    <p className="text-emerald-400 font-bold">بإمكانك المتابعة! اضغط على "استخدام موقعي الحالي" بالأعلى لتحديد الإحداثيات تلقائياً وإرسال البلاغ.</p>
                   </div>
                 )}
               </div>
               
               {addressText && (
                 <p className="text-sm text-emerald-400 mt-2 bg-emerald-500/10 p-2 rounded-lg text-center">
-                  Address: {addressText}
-                </p>
+                  العنوان: {addressText}                </p>
               )}
             </Card>
 
             {/* المرفقات الدليلية */}
             <Card className="bg-zinc-900/50 backdrop-blur-sm border-zinc-800 p-6 rounded-[1.5rem] shadow-xl">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-white">
-                <Camera className="text-emerald-500 w-5 h-5" /> Supporting Evidence
+                <Camera className="text-emerald-500 w-5 h-5" /> المرفقات الدليلية
               </h2>
               
               <label className="block border-2 border-dashed border-zinc-700 hover:border-emerald-500/50 bg-zinc-950/30 hover:bg-emerald-500/5 transition-colors rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer group">
@@ -339,8 +338,8 @@ export default function NewReportPage() {
                 <div className="w-12 h-12 bg-zinc-800 group-hover:bg-emerald-500/20 rounded-full flex items-center justify-center mb-3 transition-colors">
                   <UploadCloud className="w-6 h-6 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
                 </div>
-                <h3 className="text-md font-bold text-white mb-1">Upload Photo/Video</h3>
-                <p className="text-zinc-500 text-xs">Clear visuals help expedite inspection</p>
+                <h3 className="text-md font-bold text-white mb-1">رفع صورة أو فيديو</h3>
+                <p className="text-zinc-500 text-xs">الصور الواضحة تساعد في تسريع عملية الفحص</p>
               </label>
 
               {files.length > 0 && (
@@ -378,7 +377,7 @@ export default function NewReportPage() {
               </div>
             ) : (
               <div className="flex items-center justify-center">
-                Submit Report & Evidence 
+                إرسال البلاغ والمرفقات 
                 <Send className="w-5 h-5 mr-3" />
               </div>
             )}

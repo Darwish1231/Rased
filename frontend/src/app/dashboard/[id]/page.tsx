@@ -59,7 +59,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
         const data = await res.json();
         setReport(data.data);
       } else {
-        alert("Incident report not found");
+        alert("بيايانات البلاغ غير موجودة");
         router.push("/dashboard");
       }
 
@@ -140,7 +140,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
       {/* Top Navigation */}
       <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
         <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
-        Back to Dashboard
+        الرجوع للوحة التحكم
       </button>
 
       {/* Hero Header */}
@@ -153,11 +153,13 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                   report.status === 'new' ? 'bg-red-500/20 text-red-400' : 
                   'bg-blue-500/20 text-blue-400'}
              `}>
-               {report.status.toUpperCase()}
+               {report.status === 'resolved' ? 'تم الحل ✅' : 
+                report.status === 'new' ? 'جديد 🔴' : 
+                report.status === 'in_review' ? 'جاري الفحص ⏳' : 'تم التكليف 👷'}
              </span>
           </div>
           <p className="text-zinc-400 flex items-center gap-2">
-            <Calendar className="w-4 h-4" /> Created on: {new Date(report.createdAt).toLocaleString('en-GB')}
+            <Calendar className="w-4 h-4" /> تاريخ البلاغ: {new Date(report.createdAt).toLocaleString('ar-EG')}
           </p>
         </div>
       </div>
@@ -167,7 +169,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
         {/* Left Column: Media & Map */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="bg-zinc-900/50 border-zinc-800 p-6 rounded-3xl">
-             <h2 className="text-xl font-bold text-white mb-4">Media & Location</h2>
+             <h2 className="text-xl font-bold text-white mb-4">المرفقات والموقع</h2>
              
              {/* Media Gallery */}
              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
@@ -180,7 +182,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                ) : (
                  <div className="col-span-full h-32 flex flex-col items-center justify-center bg-zinc-950/50 rounded-2xl border border-dashed border-zinc-800 text-zinc-600">
                     <ImageIcon className="w-8 h-8 mb-2" />
-                    <span>No visual evidence provided</span>
+                     <span>لا توجد مرفقات دليلية</span>
                  </div>
                )}
              </div>
@@ -198,28 +200,35 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                   </GoogleMap>
                 ) : (
                   <div className="h-[250px] bg-zinc-950 flex items-center justify-center text-zinc-500">
-                    Location unavailable (or API key missing)
+                    الموقع غير متوفر (أو كود الـ API مفقود)
                   </div>
                 )}
                 <div className="p-4 bg-zinc-900/80 text-sm text-emerald-400">
-                   📍 {report.location?.addressText || "Registered location on map"}
+                   📍 {report.location?.addressText || "الموقع المسجل على الخريطة"}
                 </div>
              </div>
           </Card>
 
           <Card className="bg-zinc-900/50 border-zinc-800 p-6 rounded-3xl">
-            <h2 className="text-xl font-bold text-white mb-4">Problem Description</h2>
+            <h2 className="text-xl font-bold text-white mb-4">وصف المشكلة</h2>
             <p className="text-zinc-300 leading-relaxed bg-zinc-950/30 p-4 rounded-xl border border-zinc-800">
               {report.description}
             </p>
             <div className="mt-4 flex gap-4">
                <div className="bg-zinc-800/50 px-4 py-2 rounded-xl border border-zinc-700">
-                  <span className="text-xs text-zinc-500 block">Category</span>
-                  <span className="text-white font-bold">{report.category}</span>
+                  <span className="text-xs text-zinc-500 block">التصنيف</span>
+                  <span className="text-white font-bold">{
+                    report.category === 'electricity' ? 'كهرباء' :
+                    report.category === 'safety' ? 'أمن وسلامة' :
+                    report.category === 'equipment' ? 'معدات' :
+                    report.category === 'cleaning' ? 'نظافة' : 'أخرى'
+                  }</span>
                </div>
                <div className="bg-zinc-800/50 px-4 py-2 rounded-xl border border-zinc-700">
-                  <span className="text-xs text-zinc-500 block">Severity</span>
-                  <span className={`font-bold ${report.severity === 'high' ? 'text-red-400' : 'text-blue-400'}`}>{report.severity}</span>
+                  <span className="text-xs text-zinc-500 block">مستوى الخطورة</span>
+                  <span className={`font-bold ${report.severity === 'high' ? 'text-red-400' : 'text-blue-400'}`}>{
+                    report.severity === 'high' ? 'عالية جداً' : report.severity === 'medium' ? 'متوسطة' : 'عادية'
+                  }</span>
                </div>
             </div>
           </Card>
@@ -232,7 +241,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
           {(userProfile?.role === 'admin' || userProfile?.role === 'supervisor') && (
             <Card className="bg-blue-600/10 border-blue-500/20 p-6 rounded-3xl">
                <h3 className="text-lg font-bold text-blue-400 mb-4 flex items-center gap-2">
-                 <UserPlus className="w-5 h-5" /> Assign Task to Technician
+                 <UserPlus className="w-5 h-5" /> تكليف المهمة لفني
                </h3>
                <div className="space-y-3">
                  <select 
@@ -240,9 +249,9 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                    onChange={(e) => setSelectedTechnician(e.target.value)}
                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white text-sm"
                  >
-                    <option value="">Select technician...</option>
+                    <option value="">اختر الفني...</option>
                     {users.map(u => (
-                      <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                      <option key={u.id} value={u.id}>{u.fullName} ({u.role === 'supervisor' ? 'مشرف' : 'فني'})</option>
                     ))}
                  </select>
                  <button 
@@ -250,7 +259,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                    disabled={isAssigning || !selectedTechnician}
                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50"
                  >
-                   {isAssigning ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "Assign & Notify"}
+                   {isAssigning ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "إرسال وتكليف المهمة"}
                  </button>
                </div>
             </Card>
@@ -259,7 +268,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
           {/* Timeline (PDF Requirement 3.4) */}
           <Card className="bg-zinc-900/50 border-zinc-800 p-6 rounded-3xl h-fit">
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <History className="w-5 h-5 text-zinc-400" /> Incident Timeline
+              <History className="w-5 h-5 text-zinc-400" /> سجل الأحداث (Timeline)
             </h2>
             <div className="relative border-l-2 border-zinc-800 pl-6 ml-3 space-y-8">
                {report.events?.map((ev: any, i: number) => (
@@ -268,9 +277,13 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                     <div className="space-y-1">
                        <p className="text-xs text-zinc-500" dir="ltr">{new Date(ev.createdAt).toLocaleString('en-GB')}</p>
                        <p className="text-sm font-bold text-zinc-200">
-                         {ev.action === 'create' ? '🔴 Report Created' : 
-                          ev.action === 'status_change' ? `🔄 Status changed to ${ev.toStatus}` : 
-                          ev.action === 'comment' ? '💬 Comment added' : '👷 Technician assigned'}
+                         {ev.action === 'create' ? '🔴 تم إنشاء البلاغ' : 
+                          ev.action === 'status_change' ? `🔄 تم تغيير الحالة إلى ${
+                            ev.toStatus === 'new' ? 'جديد' : 
+                            ev.toStatus === 'in_review' ? 'جاري الفحص' : 
+                            ev.toStatus === 'assigned' ? 'تم التكليف' : 'تم الحل'
+                          }` : 
+                          ev.action === 'comment' ? '💬 تم إضافة تعليق' : '👷 تم تكليف فني معالج'}
                        </p>
                        {ev.note && <p className="text-xs text-zinc-400 italic bg-zinc-800/50 p-2 rounded-lg mt-1">"{ev.note}"</p>}
                     </div>
@@ -281,7 +294,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                <form onSubmit={handleAddComment} className="mt-6 pt-6 border-t border-zinc-800">
                   <div className="relative">
                     <textarea 
-                      placeholder="Add a comment or note..." 
+                      placeholder="إضافة تعليق أو ملاحظة..." 
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white resize-none"
                       rows={2}
                       value={note}

@@ -49,7 +49,7 @@ export default function RegisterPage() {
       router.push("/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError("An error occurred during registration. The email might already be in use, or the password is too weak.");
+      setError("حدث خطأ أثناء التسجيل. قد يكون البريد مستخدم مسجل مسبقاً، أو كلمة المرور ضعيفة.");
     } finally {
       setLoading(false);
     }
@@ -71,8 +71,8 @@ export default function RegisterPage() {
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
               <Zap className="text-white w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">New Account</h1>
-            <p className="text-zinc-400 text-sm">Register on Rased Platform</p>
+            <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">حساب جديد</h1>
+            <p className="text-zinc-400 text-sm">التسجيل في منصة راصد</p>
           </div>
 
           {error && (
@@ -84,7 +84,7 @@ export default function RegisterPage() {
           <form onSubmit={handleRegister} className="space-y-4">
             
             <div className="space-y-2">
-              <Label className="text-zinc-300 mr-1 text-sm font-semibold">Full Name</Label>
+              <Label className="text-zinc-300 mr-1 text-sm font-semibold">الاسم بالكامل</Label>
               <Input
                 type="text"
                 placeholder="Ex: Ahmed Mohamed"
@@ -96,7 +96,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-zinc-300 mr-1 text-sm font-semibold">Phone Number</Label>
+              <Label className="text-zinc-300 mr-1 text-sm font-semibold">رقم الموبايل</Label>
               <Input
                 type="tel"
                 placeholder="Ex: 01000000000"
@@ -109,7 +109,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-zinc-300 mr-1 text-sm font-semibold">Email Address</Label>
+              <Label className="text-zinc-300 mr-1 text-sm font-semibold">البريد الإلكتروني</Label>
               <Input
                 type="email"
                 placeholder="name@example.com"
@@ -121,7 +121,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-zinc-300 mr-1 text-sm font-semibold">Password (minimum 6 characters)</Label>
+              <Label className="text-zinc-300 mr-1 text-sm font-semibold">كلمة المرور (6 حروف على الأقل)</Label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -143,14 +143,14 @@ export default function RegisterPage() {
               ) : (
                 <div className="flex items-center justify-center">
                   <UserPlus className="w-5 h-5 ml-2" />
-                  Create Account
+                  إنشاء حساب
                 </div>
               )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-zinc-500">
-            Already have an account? <a href="/login" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">Sign In</a>
+            لديك حساب بالفعل؟ <a href="/login" className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">تسجيل الدخول</a>
           </div>
         </div>
       </div>

@@ -109,7 +109,7 @@ export class ReportsService {
     const doc = await db.collection('reports').doc(id).get();
     
     if (!doc.exists) {
-      throw new NotFoundException('Report not found');
+      throw new NotFoundException('البلاغ غير موجود');
     }
     
     // Fetch associated report events
@@ -132,7 +132,7 @@ export class ReportsService {
     const reportRef = db.collection('reports').doc(id);
     
     const doc = await reportRef.get();
-    if (!doc.exists) throw new NotFoundException('Report not found');
+    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
     
     const oldStatus = doc.data()?.status;
 
@@ -149,7 +149,7 @@ export class ReportsService {
       toStatus: status
     });
 
-    return { message: 'Status updated successfully', id, status };
+    return { message: 'تم تحديث الحالة بنجاح', id, status };
   }
 
   /**
@@ -160,7 +160,7 @@ export class ReportsService {
     const reportRef = db.collection('reports').doc(id);
     
     const doc = await reportRef.get();
-    if (!doc.exists) throw new NotFoundException('Report not found');
+    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
 
     await reportRef.update({
       assignedToUserId,
@@ -173,10 +173,10 @@ export class ReportsService {
       action: 'assignment',
       actorId: user.uid,
       toStatus: 'assigned',
-      note: `Assigned to user ${assignedToUserId}`
+      note: `تم التكليف للمستخدم ${assignedToUserId}`
     });
 
-    return { message: 'Report assigned successfully' };
+    return { message: 'تم تكليف البلاغ بنجاح' };
   }
 
   /**
@@ -185,7 +185,7 @@ export class ReportsService {
   async addComment(id: string, note: string, user: any) {
     const db = this.firebaseService.getFirestore();
     const doc = await db.collection('reports').doc(id).get();
-    if (!doc.exists) throw new NotFoundException('Report not found');
+    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
 
     await this.logReportEvent({
       reportId: id,
@@ -194,6 +194,6 @@ export class ReportsService {
       note: note
     });
 
-    return { message: 'Comment added successfully' };
+    return { message: 'تم إضافة التعليق بنجاح' };
   }
 }

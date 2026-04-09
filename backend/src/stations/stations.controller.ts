@@ -19,7 +19,7 @@ export class StationsController {
   async createStation(@Body() createStationDto: CreateStationDto) {
     const result = await this.stationsService.createStation(createStationDto);
     return {
-      message: 'Station added successfully',
+      message: 'تم إضافة المحطة بنجاح',
       data: result,
     };
   }
@@ -30,7 +30,7 @@ export class StationsController {
   async getStations() {
     const stations = await this.stationsService.getAllStations();
     return {
-      message: 'Stations retrieved successfully',
+      message: 'تم جلب المحطات بنجاح',
       data: stations,
     };
   }

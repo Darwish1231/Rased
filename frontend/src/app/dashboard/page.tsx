@@ -79,10 +79,10 @@ export default function DashboardHome() {
         // Optimistically update the UI for better responsiveness
         setReports(prev => prev.map(r => r.id === reportId ? { ...r, status: newStatus } : r));
       } else {
-        alert("Failed to update status. Please check your permissions.");
+        alert("فشل في تحديث الحالة. تأكد من صلاحياتك.");
       }
     } catch (e) {
-      alert("An error occurred while updating the status.");
+      alert("حدث خطأ أثناء تحديث الحالة.");
     }
   };
 
@@ -101,9 +101,9 @@ export default function DashboardHome() {
   });
 
   const getRoleBadge = () => {
-    if (userProfile?.role === 'admin') return <span className="bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-md text-xs font-bold mr-2">Admin</span>;
-    if (userProfile?.role === 'supervisor') return <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-md text-xs font-bold mr-2">Supervisor</span>;
-    return <span className="bg-zinc-500/20 text-zinc-400 px-2 py-0.5 rounded-md text-xs font-bold mr-2">User</span>;
+    if (userProfile?.role === 'admin') return <span className="bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-md text-xs font-bold mr-2">مدير نظام</span>;
+    if (userProfile?.role === 'supervisor') return <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-md text-xs font-bold mr-2">مشرف</span>;
+    return <span className="bg-zinc-500/20 text-zinc-400 px-2 py-0.5 rounded-md text-xs font-bold mr-2">مستخدم</span>;
   };
 
   if (loading) {
@@ -120,18 +120,18 @@ export default function DashboardHome() {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-4">
         <div>
           <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight flex items-center">
-            Operations Dashboard 🎛️
+            لوحة العمليات 🎛️
             {getRoleBadge()}
           </h1>
           <p className="text-zinc-400 text-sm">
-            {userProfile ? `Welcome: ${userProfile.email}` : "Fetching data..."}
+            {userProfile ? `أهلاً بك: ${userProfile.email}` : "جاري التحميل..."}
           </p>
         </div>
         <a 
           href="/dashboard/new" 
           className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95"
         >
-          New Emergency Report
+          بلاغ طوارئ جديد
           <span className="bg-white/20 px-2 py-0.5 rounded-md text-sm ml-1">+</span>
         </a>
       </div>
@@ -143,7 +143,7 @@ export default function DashboardHome() {
             <AlertCircle className="w-6 h-6 text-blue-500" />
           </div>
           <div>
-            <p className="text-zinc-400 text-xs font-semibold">Total Reports</p>
+            <p className="text-zinc-400 text-xs font-semibold">إجمالي البلاغات</p>
             <p className="text-2xl font-bold text-white mt-0.5">{totalReports}</p>
           </div>
         </Card>
@@ -153,7 +153,7 @@ export default function DashboardHome() {
             <AlertCircle className="w-6 h-6 text-red-500" />
           </div>
           <div>
-            <p className="text-zinc-400 text-xs font-semibold">New Incidents</p>
+            <p className="text-zinc-400 text-xs font-semibold">بلاغات جديدة</p>
             <p className="text-2xl font-bold text-white mt-0.5">{newReportsCount}</p>
           </div>
         </Card>
@@ -163,7 +163,7 @@ export default function DashboardHome() {
             <Clock className="w-6 h-6 text-amber-500" />
           </div>
           <div>
-            <p className="text-zinc-400 text-xs font-semibold">In Review</p>
+            <p className="text-zinc-400 text-xs font-semibold">قيد المعالجة</p>
             <p className="text-2xl font-bold text-white mt-0.5">{inReviewReportsCount}</p>
           </div>
         </Card>
@@ -173,7 +173,7 @@ export default function DashboardHome() {
             <CheckCircle2 className="w-6 h-6 text-emerald-500" />
           </div>
           <div>
-            <p className="text-zinc-400 text-xs font-semibold">Resolved (Closed)</p>
+            <p className="text-zinc-400 text-xs font-semibold">تم الحل (مغلق)</p>
             <p className="text-2xl font-bold text-white mt-0.5">{resolvedReportsCount}</p>
           </div>
         </Card>
@@ -184,7 +184,7 @@ export default function DashboardHome() {
         {/* Table Filters Toolbar */}
         <div className="p-6 border-b border-zinc-800/80 bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Filter className="w-5 h-5 text-zinc-400" /> Filter Reports
+            <Filter className="w-5 h-5 text-zinc-400" /> تصفية البلاغات
           </h2>
           
           <div className="flex flex-col sm:flex-row gap-3">
@@ -192,7 +192,7 @@ export default function DashboardHome() {
               <Search className="w-4 h-4 text-zinc-500 absolute right-3 top-3.5" />
               <input 
                 type="text" 
-                placeholder="Search by station or description..." 
+                placeholder="بحث برقم المحطة أو الوصف..." 
                 className="bg-zinc-950/80 border border-zinc-800 text-white text-sm rounded-xl h-11 pr-10 pl-4 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full sm:w-[250px] transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -204,11 +204,11 @@ export default function DashboardHome() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">All</option>
-              <option value="new">New Only</option>
-              <option value="in_review">In Review</option>
-              <option value="assigned">Assigned to Technician</option>
-              <option value="resolved">Resolved</option>
+              <option value="all">الكل</option>
+              <option value="new">الجديدة فقط</option>
+              <option value="in_review">جاري الفحص</option>
+              <option value="assigned">تم التكليف لفني</option>
+              <option value="resolved">تم الحل</option>
             </select>
           </div>
         </div>
@@ -218,25 +218,25 @@ export default function DashboardHome() {
           <table className="w-full text-right border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-zinc-950/40 text-zinc-400 text-xs uppercase tracking-wider">
-                <th className="p-5 font-semibold text-right rounded-tr-2xl">Station</th>
-                <th className="p-5 font-semibold text-right">Category</th>
-                <th className="p-5 font-semibold text-right">Severity</th>
-                <th className="p-5 font-semibold text-right">Location & Media</th>
-                <th className="p-5 font-semibold text-right rounded-tl-2xl">Status (Action)</th>
+                <th className="p-5 font-semibold text-right rounded-tr-2xl">المحطة</th>
+                <th className="p-5 font-semibold text-right">التصنيف</th>
+                <th className="p-5 font-semibold text-right">الخطورة</th>
+                <th className="p-5 font-semibold text-right">الموقع والمرفقات</th>
+                <th className="p-5 font-semibold text-right rounded-tl-2xl">الحالة (إجراء)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/50 text-sm">
               {filteredReports.length === 0 ? (
                  <tr>
                     <td colSpan={5} className="p-10 text-center text-zinc-500 font-semibold text-sm">
-                      No reports match your search criteria.
+                      لا توجد بلاغات تطابق معايير البحث.
                     </td>
                  </tr>
               ) : (
                 filteredReports.map((report) => (
                   <tr key={report.id} className="hover:bg-zinc-800/20 transition-colors group">
                     <td className="p-5 whitespace-normal min-w-[200px]">
-                      <p className="text-white font-bold">{report.stationNumber || "Unspecified"}</p>
+                      <p className="text-white font-bold">{report.stationNumber || "غير محدد"}</p>
                       <p className="text-zinc-500 text-xs mt-1 line-clamp-2" title={report.description}>{report.description}</p>
                       <p className="text-zinc-600 text-[10px] mt-1 font-mono" dir="ltr">
                         {report.createdAt ? new Date(report.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Just now"}
@@ -244,10 +244,10 @@ export default function DashboardHome() {
                     </td>
                     <td className="p-5">
                       <span className="text-zinc-300 font-medium">{
-                        report.category === 'electricity' ? 'Electrical' :
-                        report.category === 'safety' ? 'Safety/Emergency' :
-                        report.category === 'equipment' ? 'Equipment' :
-                        report.category === 'cleaning' ? 'Cleaning' : 'Other'
+                        report.category === 'electricity' ? 'كهرباء' :
+                        report.category === 'safety' ? 'أمن وسلامة' :
+                        report.category === 'equipment' ? 'معدات' :
+                        report.category === 'cleaning' ? 'نظافة' : 'أخرى'
                       }</span>
                     </td>
                     <td className="p-5">
@@ -256,7 +256,7 @@ export default function DashboardHome() {
                           report.severity === 'medium' ? 'bg-amber-500/10 text-amber-500' : 
                           'bg-blue-500/10 text-blue-500'}
                       `}>
-                        {report.severity === 'high' ? 'High Priority' : report.severity === 'medium' ? 'Medium' : 'Low'}
+                        {report.severity === 'high' ? 'أولوية قصوى' : report.severity === 'medium' ? 'متوسطة' : 'عادية'}
                       </span>
                     </td>
                     <td className="p-5">
@@ -274,7 +274,7 @@ export default function DashboardHome() {
                               </a>
                             ))
                           ) : (
-                            <span className="text-zinc-600 text-xs">No attachments</span>
+                            <span className="text-zinc-600 text-xs">لا توجد مرفقات</span>
                           )}
                         </div>
                       </div>
@@ -293,10 +293,10 @@ export default function DashboardHome() {
                               value={report.status || 'new'}
                               onChange={(e) => handleUpdateStatus(report.id, e.target.value)}
                             >
-                              <option value="new" className="bg-zinc-900 text-white">New 🔴</option>
-                              <option value="in_review" className="bg-zinc-900 text-white">In Review ⏳</option>
-                              <option value="assigned" className="bg-zinc-900 text-white">Assigned 👷</option>
-                              <option value="resolved" className="bg-zinc-900 text-white">Resolved ✅</option>
+                              <option value="new" className="bg-zinc-900 text-white">جديد 🔴</option>
+                              <option value="in_review" className="bg-zinc-900 text-white">جاري الفحص ⏳</option>
+                              <option value="assigned" className="bg-zinc-900 text-white">تم التكليف 👷</option>
+                              <option value="resolved" className="bg-zinc-900 text-white">تم الحل ✅</option>
                             </select>
                             <ArrowUpDown className="w-3 h-3 text-zinc-500 absolute right-3 top-2.5 pointer-events-none" />
                           </div>
@@ -307,10 +307,10 @@ export default function DashboardHome() {
                               report.status === 'assigned' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' : 
                               'bg-zinc-800 text-zinc-300 border-zinc-700'}
                           `}>
-                            {report.status === 'resolved' ? 'Resolved ✅' : 
-                             report.status === 'in_review' ? 'In Review ⏳' : 
-                             report.status === 'assigned' ? 'Assigned 👷' : 
-                             'New 🔴'}
+                            {report.status === 'resolved' ? 'تم الحل ✅' : 
+                             report.status === 'in_review' ? 'جاري الفحص ⏳' : 
+                             report.status === 'assigned' ? 'تم التكليف 👷' : 
+                             'جديد 🔴'}
                           </span>
                         )}
                         
@@ -318,7 +318,7 @@ export default function DashboardHome() {
                           href={`/dashboard/${report.id}`}
                           className="text-[10px] text-center text-zinc-500 hover:text-blue-400 underline decoration-zinc-700"
                         >
-                          View Details & Timeline
+                          عرض التفاصيل والسجل
                         </a>
                       </div>
                   </tr>

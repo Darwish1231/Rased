@@ -13,7 +13,7 @@ export class StationsService {
     if (stationData.stationNumber) {
       const existing = await stationsCollection.where('stationNumber', '==', stationData.stationNumber).get();
       if (!existing.empty) {
-        throw new BadRequestException('Station number already exists (must be unique)');
+        throw new BadRequestException('رقم المحطة مسجل مسبقاً (يجب أن يكون فريداً)');
       }
     }
 
@@ -43,7 +43,7 @@ export class StationsService {
 
     const doc = await stationRef.get();
     if (!doc.exists) {
-      throw new NotFoundException('Station not found');
+      throw new NotFoundException('المحطة غير موجودة');
     }
 
     await stationRef.update({
@@ -51,7 +51,7 @@ export class StationsService {
       updatedAt: new Date().toISOString()
     });
 
-    return { message: 'Station updated successfully' };
+    return { message: 'تم تحديث المحطة بنجاح' };
   }
 
   async deleteStation(id: string) {
@@ -60,10 +60,10 @@ export class StationsService {
 
     const doc = await stationRef.get();
     if (!doc.exists) {
-      throw new NotFoundException('Station not found');
+      throw new NotFoundException('المحطة غير موجودة');
     }
 
     await stationRef.delete();
-    return { message: 'Station deleted successfully' };
+    return { message: 'تم حذف المحطة بنجاح' };
   }
 }
