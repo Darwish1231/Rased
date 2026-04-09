@@ -18,11 +18,11 @@ export class UsersService {
     }
     
     const data = doc.data() || {};
-    // Automatically promote the primary administrator email to 'admin' role upon retrieval
-    if (data.email && data.email.toLowerCase() === 'admin1@rased.com' && data.role !== 'admin') {
+    const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL || 'admin1@rased.com';
+    if (data.email && data.email.toLowerCase() === bootstrapEmail.toLowerCase() && data.role !== 'admin') {
       await docRef.update({ role: 'admin' });
       data.role = 'admin';
-      console.log('User admin1@rased.com promoted to admin automatically! 👑');
+      console.log(`User ${data.email} promoted to admin automatically via bootstrap! 👑`);
     }
     
     return { id: doc.id, ...data };

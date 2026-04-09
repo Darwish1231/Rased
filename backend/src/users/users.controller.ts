@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Put, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 @UseGuards(AuthGuard, RolesGuard)
 export class UsersController {
