@@ -15,36 +15,36 @@ export class StationsController {
 
   @Post()
   @Roles('admin')
-  @ApiOperation({ summary: 'إضافة محطة جديدة', description: 'متاح فقط لمدير النظام' })
+  @ApiOperation({ summary: 'Add a new station', description: 'Available for system administrators only' })
   async createStation(@Body() createStationDto: CreateStationDto) {
     const result = await this.stationsService.createStation(createStationDto);
     return {
-      message: 'تم إضافة المحطة بنجاح',
+      message: 'Station added successfully',
       data: result,
     };
   }
 
-  // مسموح للكل يشوف المحطات (عشان الـ User يقدر يختار المحطة وهو بيعمل بلاغ)
+  // Public access to view stations so users can select them during report creation
   @Get()
-  @ApiOperation({ summary: 'جلب جميع المحطات', description: 'متاح للجميع' })
+  @ApiOperation({ summary: 'Retrieve all stations', description: 'Available for all authenticated users' })
   async getStations() {
     const stations = await this.stationsService.getAllStations();
     return {
-      message: 'تم جلب المحطات بنجاح',
+      message: 'Stations retrieved successfully',
       data: stations,
     };
   }
 
   @Put(':id')
   @Roles('admin')
-  @ApiOperation({ summary: 'تعديل بيانات الحطة' })
+  @ApiOperation({ summary: 'Update station details' })
   async updateStation(@Param('id') id: string, @Body() body: any) {
     return this.stationsService.updateStation(id, body);
   }
 
   @Delete(':id')
   @Roles('admin')
-  @ApiOperation({ summary: 'حذف محطة' })
+  @ApiOperation({ summary: 'Delete a station' })
   async deleteStation(@Param('id') id: string) {
     return this.stationsService.deleteStation(id);
   }

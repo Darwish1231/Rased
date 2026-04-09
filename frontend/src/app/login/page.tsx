@@ -1,7 +1,7 @@
 /**
- * هذا الملف يمثل "شاشة تسجيل الدخول".
- * بيسمح للمستخدم بكتابة الإيميل والباسورد، وبيبعتهم للـ Firebase عشان يتأكد إنهم صح.
- * لو صح، بيحول المستخدم فوراً للوحة التحكم (Dashboard).
+ * Login Screen.
+ * Handles user authentication via email and password through Firebase.
+ * Redirects authenticated users to the dashboard.
  */
 "use client";
 
@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const router = useRouter();
 
-  // لو المستخدم مسجل دخول بالفعل، حوله أوتوماتيك للوحة التحكم
+  // Automatic redirect if the user is already authenticated
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -42,7 +42,7 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/dashboard"); // Redirect to dashboard
     } catch (err: any) {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      setError("Incorrect email or password");
     } finally {
       setLoading(false);
     }
@@ -54,20 +54,20 @@ export default function LoginPage() {
     setSuccessMsg("");
 
     if (!email) {
-      setError("الرجاء إدخال البريد الإلكتروني أولاً لإرسال رابط إعادة التعيين");
+      setError("Please enter your email address to send a reset link");
       return;
     }
 
     try {
       await sendPasswordResetEmail(auth, email);
-      setSuccessMsg("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني");
+      setSuccessMsg("Password reset link has been sent to your email");
     } catch (err: any) {
       if (err.code === "auth/user-not-found") {
-        setError("لا يوجد حساب مسجل بهذا البريد الإلكتروني");
+        setError("No account found with this email address");
       } else if (err.code === "auth/invalid-email") {
-        setError("صيغة البريد الإلكتروني غير صحيحة");
+        setError("Invalid email format");
       } else {
-        setError("حدث خطأ أثناء محاولة إرسال رابط إعادة التعيين. تأكد من صحة البريد الإلكتروني.");
+        setError("An error occurred while sending the reset link. Please verify your email.");
       }
     }
   };
@@ -88,8 +88,8 @@ export default function LoginPage() {
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
               <Zap className="text-white w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">منصة راصد</h1>
-            <p className="text-zinc-400 text-sm">تسجيل الدخول لمتابعة محطات الكهرباء</p>
+            <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">Rased Platform</h1>
+            <p className="text-zinc-400 text-sm">Sign in to monitor power stations</p>
           </div>
 
           {error && (
@@ -105,7 +105,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-zinc-300 mr-1 text-sm font-semibold">البريد الإلكتروني</Label>
+              <Label className="text-zinc-300 mr-1 text-sm font-semibold">Email Address</Label>
               <div className="relative">
                 <Input
                   type="email"
@@ -119,8 +119,8 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center mr-1">
-                <Label className="text-zinc-300 text-sm font-semibold">كلمة المرور</Label>
-                <a href="#" onClick={handleResetPassword} className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer">نسيت كلمة المرور؟</a>
+                <Label className="text-zinc-300 text-sm font-semibold">Password</Label>
+                <a href="#" onClick={handleResetPassword} className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer">Forgot Password?</a>
               </div>
               <Input
                 type="password"
@@ -142,14 +142,14 @@ export default function LoginPage() {
               ) : (
                 <div className="flex items-center justify-center">
                   <LogIn className="w-5 h-5 ml-2" />
-                  تسجيل الدخول
+                  Sign In
                 </div>
               )}
             </Button>
           </form>
 
           <div className="mt-8 text-center text-sm text-zinc-500">
-            ليس لديك حساب؟ <a href="/register" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">إنشاء حساب جديد</a>
+            Don't have an account? <a href="/register" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Create a new account</a>
           </div>
         </div>
       </div>

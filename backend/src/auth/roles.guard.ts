@@ -13,31 +13,31 @@ export class RolesGuard implements CanActivate {
     ]);
 
     if (!requiredRoles) {
-      return true; // مفيش @Roles يبقى مسموح للكل
+      return true; // No @Roles decorator means public access is allowed
     }
 
     const request = context.switchToHttp().getRequest();
     const userProfile = request.user?.profile;
 
     if (!userProfile) {
-      throw new ForbiddenException('لم يتم العثور على بروفايل المستخدم');
+      throw new ForbiddenException('User profile not found');
     }
 
-    // 1. استخراج الصلاحية من البروفايل (Firestore)
+    // 1. Extract user role from Firestore profile
     const userRole = userProfile?.role;
     
-    // 2. التحقق من الإيميل مباشرة كصمام أمان للأدمن الأساسي
+    // 2. Direct email check as a fail-safe for the primary administrator account
     const userEmail = request.user?.email || '';
     const isAdminEmail = userEmail.toLowerCase() === 'admin1@rased.com';
 
-    // 3. إذا كان المطلوب أدمن وهو معاه الإيميل ده، اسمح له فوراً
+    // 3. Grant immediate access if the user is the primary admin and admin role is required
     if (isAdminEmail && requiredRoles.includes('admin')) {
       return true;
     }
 
     const hasRole = userRole && requiredRoles.includes(userRole);
     if (!hasRole) {
-      throw new ForbiddenException('صلاحياتك لا تسمح لك بالقيام بهذا الإجراء');
+      throw new ForbiddenException('You do not have permission to perform this action');
     }
 
     return true;

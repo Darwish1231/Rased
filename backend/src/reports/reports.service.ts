@@ -5,7 +5,9 @@ import { FirebaseService } from '../firebase/firebase.service';
 export class ReportsService {
   constructor(private readonly firebaseService: FirebaseService) {}
 
-  // إضافة Event جديد في الـ Log
+  /**
+   * Logs a new event for a specific report in the report_events collection.
+   */
   private async logReportEvent(data: {
     reportId: string;
     action: 'status_change' | 'comment' | 'assignment' | 'create';
@@ -22,7 +24,9 @@ export class ReportsService {
     await db.collection('report_events').add(event);
   }
 
-  // إضافة بلاغ جديد
+  /**
+   * Creates a new incident report in the Firestore database.
+   */
   async createReport(reportData: any, user: any) {
     const db = this.firebaseService.getFirestore();
     
@@ -31,11 +35,11 @@ export class ReportsService {
       stationId: reportData.stationId || '',
       stationNumber: reportData.stationNumber || '',
       description: reportData.description || '',
-      category: reportData.category || 'غيره',
+      category: reportData.category || 'other',
       severity: reportData.severity || 'low',
       media: reportData.media || [],
       location: reportData.location || { lat: 0, lng: 0 },
-      status: 'new', // new, in_review, assigned, resolved, rejected
+      status: 'new', // Available statuses: new, in_review, assigned, resolved
       assignedToUserId: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -43,7 +47,7 @@ export class ReportsService {
 
     const docRef = await db.collection('reports').add(newReport);
     
-    // تسجيل حركة الإنشاء
+    // Log the creation event
     await this.logReportEvent({
       reportId: docRef.id,
       action: 'create',
@@ -54,7 +58,12 @@ export class ReportsService {
     return { id: docRef.id, ...newReport };
   }
 
-  // جلب البلاغات (حسب الدور)
+  /**
+   * Retrieves reports based on user role and permissions.
+   * - Admins see all reports.
+   * - Supervisors see reports within their station scope.
+   * - Regular users see only their own reports.
+   */
   async getAllReports(user: any) {
     const db = this.firebaseService.getFirestore();
     const profile = user.profile;
@@ -64,25 +73,25 @@ export class ReportsService {
     const reportsRef = db.collection('reports');
 
     if (role === 'admin') {
-      // الأدمن يشوف كله
+      // Admins have access to all reports
       snapshot = await reportsRef.get();
     } else if (role === 'supervisor') {
-      // المشرف يشوف المحطات اللي في نطاقه بس
+      // Supervisors only see reports within their defined scope
       const scopes = profile.stationScopes || [];
       if (scopes.length > 0) {
         // Firebase `in` query limits arrays to 10 limits, but for MVP it's acceptable.
         snapshot = await reportsRef.where('stationId', 'in', scopes).get();
       } else {
-        return []; // لو معندوش محطات هنرجع مصفوفة فاضية
+        return []; // Return empty if no scope is defined
       }
     } else {
-      // المستخدم العادي يشوف بلاغاته
+      // Regular users only see their own submitted reports
       snapshot = await reportsRef.where('reporterId', '==', user.uid).get();
     }
     
     const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // الترتيب الأحدث أولا
+    // Sort reports by creation date (newest first)
     docs.sort((a: any, b: any) => {
        const tA = new Date(a.createdAt).getTime();
        const tB = new Date(b.createdAt).getTime();
@@ -92,33 +101,38 @@ export class ReportsService {
     return docs;
   }
 
+  /**
+   * Retrieves a single report by ID along with its event history.
+   */
   async getReportById(id: string) {
     const db = this.firebaseService.getFirestore();
     const doc = await db.collection('reports').doc(id).get();
     
     if (!doc.exists) {
-      throw new NotFoundException('البلاغ غير موجود');
+      throw new NotFoundException('Report not found');
     }
     
-    // نجيب معاها أحداث البلاغ
+    // Fetch associated report events
     const eventsSnapshot = await db.collection('report_events')
       .where('reportId', '==', id)
       .get();
       
     const events = eventsSnapshot.docs.map(e => ({ id: e.id, ...e.data() }));
-    // نرتب الأحداث قديم لجديد
+    // Sort events by date (oldest to newest)
     events.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
     return { id: doc.id, ...doc.data(), events };
   }
 
-  // تغيير الحالة
+  /**
+   * Updates the status of an existing report and logs the change.
+   */
   async updateReportStatus(id: string, status: string, user: any) {
     const db = this.firebaseService.getFirestore();
     const reportRef = db.collection('reports').doc(id);
     
     const doc = await reportRef.get();
-    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
+    if (!doc.exists) throw new NotFoundException('Report not found');
     
     const oldStatus = doc.data()?.status;
 
@@ -135,20 +149,22 @@ export class ReportsService {
       toStatus: status
     });
 
-    return { message: 'تم تحديث الحالة', id, status };
+    return { message: 'Status updated successfully', id, status };
   }
 
-  // تعيين البلاغ
+  /**
+   * Assigns a report to a specific user and updates the status to 'assigned'.
+   */
   async assignReport(id: string, assignedToUserId: string, user: any) {
     const db = this.firebaseService.getFirestore();
     const reportRef = db.collection('reports').doc(id);
     
     const doc = await reportRef.get();
-    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
+    if (!doc.exists) throw new NotFoundException('Report not found');
 
     await reportRef.update({
       assignedToUserId,
-      status: 'assigned', // غالباً التعيين بيقلب الحالة
+      status: 'assigned', // Assignment typically changes status to assigned
       updatedAt: new Date().toISOString(),
     });
 
@@ -157,17 +173,19 @@ export class ReportsService {
       action: 'assignment',
       actorId: user.uid,
       toStatus: 'assigned',
-      note: `تم التعيين إلى المستخدم ${assignedToUserId}`
+      note: `Assigned to user ${assignedToUserId}`
     });
 
-    return { message: 'تم تعيين البلاغ بنجاح' };
+    return { message: 'Report assigned successfully' };
   }
 
-  // إضافة تعليق
+  /**
+   * Adds a comment/note to a report's history.
+   */
   async addComment(id: string, note: string, user: any) {
     const db = this.firebaseService.getFirestore();
     const doc = await db.collection('reports').doc(id).get();
-    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
+    if (!doc.exists) throw new NotFoundException('Report not found');
 
     await this.logReportEvent({
       reportId: id,
@@ -176,6 +194,6 @@ export class ReportsService {
       note: note
     });
 
-    return { message: 'تم إضافة التعليق بنجاح' };
+    return { message: 'Comment added successfully' };
   }
 }

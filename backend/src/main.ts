@@ -1,11 +1,6 @@
 /**
- * ملف التشغيل الرئيسي (Main Entry Point).
- * يقوم بتهيئة خادم NestJS وفتح المنفذ (4000) لاستقبال الطلبات.
- * وتفعيل إعدادات الـ CORS والسماح بالملفات الكبيرة.
- */
-/**
- * هذا الملف هو "نقطة البداية" (Entry point) اللي بيقوم بتشغيل خادم الـ Backend كله.
- * هنا بنحدد بورت التشغيل وكمان فعلنا (CORS) عشان الموقع (Frontend) يقدر يكلم الخادم بدون مشاكل أمنية.
+ * Main Entry Point.
+ * Initializes the NestJS server, configures CORS, and sets up middleware for large payloads.
  */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -17,14 +12,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // تفعيل السماح للـ Frontend إنه يكلم الـ Backend
+  // Enable Cross-Origin Resource Sharing (CORS) for frontend interaction
   app.enableCors();
   
-  // زيادة مساحة استيعاب البيانات للسماح باستقبال الصور بصيغة النصوص (Base64)
+  // Increase payload capacity to allow large data transfers (e.g., Base64 images)
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-  // السماح بقراءة المرفقات من مجلد المرفقات
+  // Serve static files from the uploads directory
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   app.useGlobalPipes(new ValidationPipe({
@@ -35,7 +30,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Rased Platform API')
-    .setDescription('مستندات دوال نظام راصد لإدارة بلاغات المحطات')
+    .setDescription('API documentation for the Rased incident management system')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

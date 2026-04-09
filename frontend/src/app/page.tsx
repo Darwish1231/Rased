@@ -1,6 +1,6 @@
 /**
- * الصفحة الرئيسية الافتتاحية للموقع (Landing Page).
- * شاشة الترحيب اللي بتظهر أول ما تفتح الموقع، وبترشدك لصفحة تسجيل الدخول.
+ * Landign Page Redirect.
+ * Automatically redirects unauthenticated visitors to the login page.
  */
 import { redirect } from 'next/navigation';
 

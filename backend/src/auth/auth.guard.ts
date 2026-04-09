@@ -1,6 +1,6 @@
 /**
- * الحارس الأمني (Auth Guard) الخاص بالـ Backend.
- * وظيفته اعتراض أي طلب والتأكد من وجود تذكرة دخول (Firebase Token) صحيحة قبل السماح بالوصول.
+ * Backend Authentication Guard.
+ * Intercepts requests to verify the Firebase ID Token before allowing access.
  */
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -14,17 +14,17 @@ export class AuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('طلبك مرفوض! يجب تسجيل الدخول وإرفاق التذكرة الأمنية أولاً.');
+      throw new UnauthorizedException('Access denied! Please log in first.');
     }
 
     const token = authHeader.split('Bearer ')[1];
 
     try {
-      // Firebase هيفك التذكرة ويتأكد من توقيعها وإنها لسه صالحة
+      // Verify the ID token using Firebase Admin SDK
       const decodedToken = await this.firebaseService.getAuth().verifyIdToken(token);
       request.user = decodedToken;
 
-      // جلب بيانات الحساب والدور (Role) من قاعدة البيانات وربطه بالطلب المبعوث
+      // Fetch user profile and role from Firestore and attach to the request object
       const db = this.firebaseService.getFirestore();
       const docRef = db.collection('users').doc(decodedToken.uid);
       const userDoc = await docRef.get();
@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
         profileData = { email: decodedToken.email, role: 'user', stationScopes: [] };
       }
 
-      // ترقية تلقائية للإيميل الخاص بصاحب الموقع ليكون الأدمن بمجرد تسجيل دخوله
+      // Automatically promote the site owner's email to 'admin' upon first login
       if (decodedToken.email && decodedToken.email.toLowerCase() === 'admin1@rased.com') {
         if (profileData.role !== 'admin') {
           profileData.role = 'admin';
@@ -50,7 +50,7 @@ export class AuthGuard implements CanActivate {
       request.user.profile = profileData;
       return true;
     } catch (error) {
-      throw new UnauthorizedException(`تذكرة الدخول غير صالحة: ${error.message}`);
+      throw new UnauthorizedException(`Invalid authentication token: ${error.message}`);
     }
   }
 }

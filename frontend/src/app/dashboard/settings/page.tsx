@@ -17,7 +17,7 @@ export default function SettingsPage() {
   const [editScopes, setEditScopes] = useState<string[]>([]);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  // لحفظ محطة جديدة
+  // New station form state
   const [newStation, setNewStation] = useState({ number: "", name: "", region: "" });
   const [isSavingStation, setIsSavingStation] = useState(false);
 
@@ -25,7 +25,7 @@ export default function SettingsPage() {
     try {
       const token = await user.getIdToken();
       
-      // جلب البروفايل الخاص بالشخص الحالي للتأكد انه أدمن
+      // Fetch current user profile to verify admin privileges
       const profileRes = await fetch("/api-proxy/users/me", {
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -36,7 +36,7 @@ export default function SettingsPage() {
       } else {
         const errText = await profileRes.text();
         console.error("Settings profile error:", errText);
-        alert(`خطأ في جلب الصلاحيات: ${profileRes.status} \n ${errText}`);
+        alert(`Error fetching permissions: ${profileRes.status} \n ${errText}`);
       }
 
       if (profile?.role === 'admin') {
@@ -111,10 +111,10 @@ export default function SettingsPage() {
         setUsers(users.map(u => u.id === userId ? { ...u, role: editRole, stationScopes: payload.stationScopes } : u));
         setEditingUserId(null);
       } else {
-        alert("فشل في التحديث، تأكد من أنك تملك صلاحيات الأدمن.");
+        alert("Update failed. Please ensure you have administrative permissions.");
       }
     } catch(err) {
-      alert("حدث خطأ أثناء الاتصال بالخادم.");
+      alert("An error occurred while connecting to the server.");
     } finally {
       setSavingId(null);
     }
@@ -131,7 +131,7 @@ export default function SettingsPage() {
   const handleCreateStation = async (e: any) => {
     e.preventDefault();
     if (!newStation.name || !newStation.number || !newStation.region) {
-      alert("الرجاء تعبئة جميع الحقول!");
+      alert("Please fill in all fields!");
       return;
     }
     
@@ -156,18 +156,18 @@ export default function SettingsPage() {
         setStations([data.data, ...stations]);
         setNewStation({ number: "", name: "", region: "" });
       } else {
-        alert("فشل إضافة المحطة");
+        alert("Failed to add station");
       }
     } catch(err) {
       console.error(err);
-      alert("حدث خطأ بالاتصال");
+      alert("Connection error occurred");
     } finally {
       setIsSavingStation(false);
     }
   };
 
   const handleDeleteStation = async (stationId: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذه المحطة نهائياً؟")) return;
+    if (!confirm("Are you sure you want to permanently delete this station?")) return;
     
     try {
       const token = await auth.currentUser?.getIdToken();
@@ -179,7 +179,7 @@ export default function SettingsPage() {
       if (res.ok) {
         setStations(stations.filter(s => s.id !== stationId));
       } else {
-        alert("لا يمكن حذف المحطة");
+        alert("Station could not be deleted");
       }
     } catch(err) {
       console.error(err);
@@ -198,8 +198,8 @@ export default function SettingsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] text-center space-y-4" dir="rtl">
         <ShieldAlert className="w-16 h-16 text-red-500" />
-        <h1 className="text-2xl font-bold text-white">غير مصرح لك (Access Denied)</h1>
-        <p className="text-zinc-400">هذه الصفحة مخصصة لمديري النظام (Admins) فقط.</p>
+        <h1 className="text-2xl font-bold text-white">Access Denied</h1>
+        <p className="text-zinc-400">This page is reserved for System Administrators (Admins) only.</p>
       </div>
     );
   }
@@ -210,10 +210,10 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between gap-4 mb-4">
         <div>
           <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight flex items-center">
-            إعدادات النظام ⚙️
+            System Settings ⚙️
           </h1>
           <p className="text-zinc-400 text-sm">
-            إدارة المستخدمين ومنح أو إلغاء الصلاحيات (Role-Based Access Control)
+            Manage users and assign/revoke Roles (Role-Based Access Control)
           </p>
         </div>
       </div>
@@ -223,7 +223,7 @@ export default function SettingsPage() {
         <div className="p-6 border-b border-zinc-800/80 bg-zinc-900/60 flex items-center gap-2">
           <Users className="w-5 h-5 text-zinc-400" />
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            تم تسجيل {users.length} مستخدم في المنصة
+            {users.length} users registered on the platform
           </h2>
         </div>
 
@@ -232,11 +232,11 @@ export default function SettingsPage() {
           <table className="w-full text-right border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-zinc-950/40 text-zinc-400 text-xs uppercase tracking-wider">
-                <th className="p-5 font-semibold text-right">المستخدم / البريد</th>
-                <th className="p-5 font-semibold text-right">رقم الهاتف</th>
-                <th className="p-5 font-semibold text-right">تاريخ الانضمام</th>
-                <th className="p-5 font-semibold text-center">الصلاحية (الدور)</th>
-                <th className="p-5 font-semibold text-center rounded-tl-2xl">إجراءات</th>
+                <th className="p-5 font-semibold text-right">User / Email</th>
+                <th className="p-5 font-semibold text-right">Phone Number</th>
+                <th className="p-5 font-semibold text-right">Join Date</th>
+                <th className="p-5 font-semibold text-center">Permission (Role)</th>
+                <th className="p-5 font-semibold text-center rounded-tl-2xl">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/50 text-sm">
@@ -246,15 +246,15 @@ export default function SettingsPage() {
                 return (
                   <tr key={u.id} className="hover:bg-zinc-800/20 transition-colors group">
                     <td className="p-5">
-                      <p className="text-white font-bold">{u.fullName || "متخفي"}</p>
-                      <p className="text-zinc-500 text-xs mt-1">{u.email || "بدون بريد"}</p>
+                      <p className="text-white font-bold">{u.fullName || "Anonymous"}</p>
+                      <p className="text-zinc-500 text-xs mt-1">{u.email || "No Email"}</p>
                     </td>
                     <td className="p-5">
                       <span className="text-zinc-300 font-mono" dir="ltr">{u.phone || "---"}</span>
                     </td>
                     <td className="p-5">
                       <p className="text-zinc-400 text-sm font-mono" dir="ltr">
-                        {u.createdAt ? new Date(u.createdAt.seconds ? u.createdAt.seconds * 1000 : u.createdAt).toLocaleDateString('en-GB') : "غير معروف"}
+                        {u.createdAt ? new Date(u.createdAt.seconds ? u.createdAt.seconds * 1000 : u.createdAt).toLocaleDateString('en-GB') : "Unknown"}
                       </p>
                     </td>
                     <td className="p-5 text-center">
@@ -265,15 +265,15 @@ export default function SettingsPage() {
                             value={editRole}
                             onChange={(e) => setEditRole(e.target.value)}
                           >
-                            <option value="user">مستخدم عادي</option>
-                            <option value="supervisor">مشرف محطات</option>
-                            <option value="admin">مدير نظام</option>
+                            <option value="user">Regular User</option>
+                            <option value="supervisor">Station Supervisor</option>
+                            <option value="admin">System Admin</option>
                           </select>
                           
                           {/* عرض المحطات لو اختار مشرف */}
                           {editRole === "supervisor" && (
                             <div className="mt-2 w-full max-w-[200px] border border-zinc-800 rounded-lg p-2 bg-zinc-950/50 max-h-32 overflow-y-auto">
-                              <p className="text-[10px] text-zinc-500 mb-2 font-semibold">اختر المحطات المسؤولة منه:</p>
+                              <p className="text-[10px] text-zinc-500 mb-2 font-semibold">Select responsible stations:</p>
                               {stations.map(st => (
                                 <label key={st.id} className="flex items-center gap-2 mb-1 cursor-pointer">
                                   <input 
@@ -305,14 +305,14 @@ export default function SettingsPage() {
                             disabled={savingId === u.id}
                             onClick={() => handleSaveRole(u.id)} 
                             className="bg-emerald-500 hover:bg-emerald-400 text-white p-2 rounded-lg transition-colors disabled:opacity-50"
-                            title="حفظ"
+                            title="Save"
                           >
                             {savingId === u.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                           </button>
                           <button 
                             onClick={handleCancelEdit} 
                             className="bg-zinc-700 hover:bg-zinc-600 text-white p-2 rounded-lg transition-colors"
-                            title="إلغاء"
+                            title="Cancel"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -322,7 +322,7 @@ export default function SettingsPage() {
                           onClick={() => handleStartEdit(u)}
                           className="text-zinc-500 hover:text-blue-400 bg-zinc-800/50 hover:bg-zinc-800 px-4 py-2 rounded-lg text-xs font-bold transition-all"
                         >
-                          تعديل الصلاحية
+                          Edit Permission
                         </button>
                       )}
                     </td>
@@ -339,20 +339,20 @@ export default function SettingsPage() {
         <div className="p-6 border-b border-zinc-800/80 bg-zinc-900/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-bold text-white">إدارة المحطات (نطاقات العمل)</h2>
+            <h2 className="text-lg font-bold text-white">Station Management (Scopes)</h2>
           </div>
-          <span className="text-sm font-semibold text-zinc-400 px-3 py-1 bg-zinc-800 rounded-lg">المحطات الحالية: {stations.length}</span>
+          <span className="text-sm font-semibold text-zinc-400 px-3 py-1 bg-zinc-800 rounded-lg">Total Stations: {stations.length}</span>
         </div>
         
         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Add Form */}
           <div className="lg:col-span-1 border border-zinc-800 rounded-xl p-5 bg-zinc-950/50 h-fit">
             <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-emerald-400" /> إضافة محطة جديدة
+              <Plus className="w-4 h-4 text-emerald-400" /> Add New Station
             </h3>
             <form onSubmit={handleCreateStation} className="space-y-4">
               <div>
-                <label className="text-xs text-zinc-400 font-bold mb-1 block">رقم/كود المحطة</label>
+                <label className="text-xs text-zinc-400 font-bold mb-1 block">Station Number/Code</label>
                 <input 
                   type="text" 
                   value={newStation.number} 
@@ -362,17 +362,17 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 font-bold mb-1 block">اسم المحطة</label>
+                <label className="text-xs text-zinc-400 font-bold mb-1 block">Station Name</label>
                 <input 
                   type="text" 
                   value={newStation.name} 
                   onChange={e => setNewStation({...newStation, name: e.target.value})}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" 
-                  placeholder="محطة كهرباء اسوان" 
+                  placeholder="e.g. Aswan Power Station" 
                 />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 font-bold mb-1 block">المنطقة</label>
+                <label className="text-xs text-zinc-400 font-bold mb-1 block">Region</label>
                 <input 
                   type="text" 
                   value={newStation.region} 
@@ -386,7 +386,7 @@ export default function SettingsPage() {
                 disabled={isSavingStation}
                 className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               >
-                {isSavingStation ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ المحطة"}
+                {isSavingStation ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Station"}
               </button>
             </form>
           </div>
@@ -397,10 +397,10 @@ export default function SettingsPage() {
               <table className="w-full text-right text-sm">
                 <thead className="bg-zinc-900/80 text-zinc-400 sticky top-0 uppercase tracking-wider text-xs">
                   <tr>
-                    <th className="p-4">الكود</th>
-                    <th className="p-4">اسم المحطة</th>
-                    <th className="p-4">المنطقة</th>
-                    <th className="p-4 text-center">حذف</th>
+                    <th className="p-4">Code</th>
+                    <th className="p-4">Station Name</th>
+                    <th className="p-4">Region</th>
+                    <th className="p-4 text-center">Delete</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800/50">
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                         <button 
                           onClick={() => handleDeleteStation(st.id)}
                           className="text-zinc-600 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all"
-                          title="حذف المحطة"
+                          title="Delete Station"
                         >
                           <Trash2 className="w-4 h-4 mx-auto" />
                         </button>
@@ -421,7 +421,7 @@ export default function SettingsPage() {
                     </tr>
                   ))}
                   {stations.length === 0 && (
-                    <tr><td colSpan={4} className="p-8 text-center text-zinc-500">لا توجد محطات مسجلة</td></tr>
+                    <tr><td colSpan={4} className="p-8 text-center text-zinc-500">No stations registered</td></tr>
                   )}
                 </tbody>
               </table>

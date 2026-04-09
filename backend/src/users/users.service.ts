@@ -6,7 +6,7 @@ export class UsersService {
   constructor(private readonly firebaseService: FirebaseService) {}
 
   /**
-   * جلب بيانات المستخدم من Firestore
+   * Fetch user profile data from Firestore.
    */
   async getUserById(uid: string) {
     const db = this.firebaseService.getFirestore();
@@ -14,11 +14,11 @@ export class UsersService {
     const doc = await docRef.get();
     
     if (!doc.exists) {
-      throw new NotFoundException('المستخدم غير موجود');
+      throw new NotFoundException('User not found');
     }
     
     const data = doc.data() || {};
-    // ترقية تلقائية للإيميل الخاص بصاحب الموقع ليكون الأدمن بمجرد تسجيل دخوله
+    // Automatically promote the primary administrator email to 'admin' role upon retrieval
     if (data.email && data.email.toLowerCase() === 'admin1@rased.com' && data.role !== 'admin') {
       await docRef.update({ role: 'admin' });
       data.role = 'admin';
@@ -29,14 +29,14 @@ export class UsersService {
   }
 
   /**
-   * إنشاء مستخدم جديد (عند التسجيل لأول مرة)
+   * Create a new user profile upon registration.
    */
   async createUserProfile(uid: string, data: any) {
     const db = this.firebaseService.getFirestore();
     const userRef = db.collection('users').doc(uid);
     
     const newProfile = {
-      fullName: data.fullName || 'مستخدم جديد',
+      fullName: data.fullName || 'New User',
       email: data.email || '',
       phone: data.phone || '',
       role: data.role || 'user', // admin, supervisor, user
@@ -49,7 +49,7 @@ export class UsersService {
   }
 
   /**
-   * جلب جميع المستخدمين (للأدمن)
+   * Retrieve all user profiles (Administrative access only).
    */
   async getAllUsers() {
     const db = this.firebaseService.getFirestore();
@@ -58,7 +58,7 @@ export class UsersService {
   }
 
   /**
-   * تعديل صلاحيات المستخدم (مثلاً ترقيته لمشرف)
+   * Update user roles and station scopes (Role promotion).
    */
   async updateUserRole(uid: string, role: string, stationScopes: string[] = []) {
     const db = this.firebaseService.getFirestore();
@@ -69,6 +69,6 @@ export class UsersService {
       stationScopes
     });
     
-    return { message: 'تم تحديث الصلاحيات بنجاح' };
+    return { message: 'User role updated successfully' };
   }
 }

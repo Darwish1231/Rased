@@ -1,6 +1,6 @@
 /**
- * تهيئة اتصال قاعدة البيانات (Firebase Service).
- * هذا الملف يقوم بالاتصال بسيرفرات جوجل (Firebase Admin SDK) وفتح قناة آمنة لقاعدة البيانات.
+ * Firebase Service Initialization.
+ * This file establishes a secure connection to Google's Firebase Admin SDK.
  */
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
@@ -15,11 +15,11 @@ export class FirebaseService implements OnModuleInit {
       try {
         let credential;
         
-        // الأولوية للمتغيرات المنفصلة (أسهل في Vercel وتمنع أخطاء التنسيق)
+        // Priority 1: Individual environment variables (preferred for Vercel deployment)
         if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
           let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
           
-          // تنظيف المفتاح ومعالجة الأسطر الجديدة
+          // Clean and handle newline characters in the private key
           privateKey = privateKey.replace(/\\n/g, '\n');
           if (!privateKey.includes('\n')) {
              privateKey = privateKey
@@ -33,7 +33,7 @@ export class FirebaseService implements OnModuleInit {
             privateKey: privateKey,
           });
         } 
-        // البديل المفضل: ملف الـ JSON الكامل (Minified)
+        // Priority 2: Full minified JSON credentials string
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
           const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
           if (config.private_key) {
@@ -41,7 +41,7 @@ export class FirebaseService implements OnModuleInit {
           }
           credential = admin.credential.cert(config);
         } else {
-          // للمحيط المحلي (Local Development)
+          // Fallback: Local development service account file
           const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
           credential = admin.credential.cert(require(serviceAccountPath));
         }

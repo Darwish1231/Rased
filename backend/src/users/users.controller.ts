@@ -10,7 +10,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * جلب الأكونت الخاص بالمستخدم
+   * Fetch authenticated user's own profile.
    */
   @Get('me')
   async getMyProfile(@Req() req: any) {
@@ -19,11 +19,11 @@ export class UsersController {
   }
 
   /**
-   * إنشاء البروفايل أول مرة بعد التسجيل في Firebase
+   * Create a user profile upon initial Firebase registration.
    */
   @Post('profile')
   async createProfile(@Body() body: any, @Req() req: any) {
-    // هنتأكد إنه بينشئ البروفايل لنفسه
+    // Ensure the profile is created for the authenticated user only
     return this.usersService.createUserProfile(req.user.uid, {
       ...body,
       email: req.user.email
@@ -31,7 +31,7 @@ export class UsersController {
   }
 
   /**
-   * جلب كل المستخدمين (صلاحية للأدمن فقط)
+   * Retrieve all user profiles (Admin access only).
    */
   @Get()
   @Roles('admin')
@@ -40,7 +40,7 @@ export class UsersController {
   }
 
   /**
-   * تعديل دور أي مستخدم (ترقية لمشرف مثلاً)
+   * Update a user's role and station access permissions.
    */
   @Put(':id/role')
   @Roles('admin')

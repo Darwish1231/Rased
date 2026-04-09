@@ -1,6 +1,6 @@
 /**
- * الهيكل الرئيسي للمشروع باكمله (Root Layout).
- * هذا الملف يغلف كل صفحات الموقع، ويحتوي على إعدادات الخطوط (Fonts) والتنسيقات الأساسية.
+ * Root Layout.
+ * Wraps the entire application and configures global fonts, styles, and metadata.
  */
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";

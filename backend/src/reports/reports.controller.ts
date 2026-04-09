@@ -14,21 +14,21 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'إنشاء بلاغ جديد' })
+  @ApiOperation({ summary: 'Create a new incident report' })
   async createReport(@Body() createReportDto: CreateReportDto, @Req() req: any) {
     const result = await this.reportsService.createReport(createReportDto, req.user);
     return {
-      message: 'تم إضافة البلاغ بنجاح',
+      message: 'Report created successfully',
       data: result,
     };
   }
 
   @Get()
-  @ApiOperation({ summary: 'جلب البلاغات (حسب الصلاحية)' })
+  @ApiOperation({ summary: 'Retrieve reports based on user permissions' })
   async getReports(@Req() req: any) {
     const reports = await this.reportsService.getAllReports(req.user);
     return {
-      message: 'تم جلب البلاغات',
+      message: 'Reports retrieved successfully',
       data: reports,
     };
   }
@@ -37,14 +37,14 @@ export class ReportsController {
   async getReportDetails(@Param('id') id: string) {
     const report = await this.reportsService.getReportById(id);
     return {
-      message: 'تم جلب البلاغ',
+      message: 'Report details retrieved successfully',
       data: report,
     };
   }
 
   @Patch(':id/status')
   @Roles('admin', 'supervisor')
-  @ApiOperation({ summary: 'تحديث حالة البلاغ' })
+  @ApiOperation({ summary: 'Update the status of a report' })
   @ApiBody({ schema: { example: { status: 'resolved' } } })
   async updateStatus(@Param('id') id: string, @Body('status') status: string, @Req() req: any) {
     const result = await this.reportsService.updateReportStatus(id, status, req.user);
@@ -53,7 +53,7 @@ export class ReportsController {
 
   @Patch(':id/assign')
   @Roles('admin', 'supervisor')
-  @ApiOperation({ summary: 'تعيين البلاغ لمستحدم' })
+  @ApiOperation({ summary: 'Assign a report to a user' })
   @ApiBody({ schema: { example: { assignedToUserId: 'UID' } } })
   async assignReport(@Param('id') id: string, @Body('assignedToUserId') assignedToUserId: string, @Req() req: any) {
     const result = await this.reportsService.assignReport(id, assignedToUserId, req.user);
@@ -62,8 +62,8 @@ export class ReportsController {
 
   @Post(':id/comment')
   @Roles('admin', 'supervisor')
-  @ApiOperation({ summary: 'إضافة تعليق' })
-  @ApiBody({ schema: { example: { note: 'تم مراجعة العطل' } } })
+  @ApiOperation({ summary: 'Add a comment to a report' })
+  @ApiBody({ schema: { example: { note: 'Issue has been reviewed' } } })
   async addComment(@Param('id') id: string, @Body('note') note: string, @Req() req: any) {
     const result = await this.reportsService.addComment(id, note, req.user);
     return result;

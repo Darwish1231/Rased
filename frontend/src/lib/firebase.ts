@@ -1,7 +1,7 @@
 /**
- * هذا الملف مخصص لربط مشروعنا بـ Firebase.
- * بيحتوي على إعدادات الاتصال بقاعدة البيانات (Firestore) ونظام المصادقة وتسجيل الدخول (Auth).
- * بيتم استدعاء المتغيرات app و auth و db من هنا في أي مكان تاني في المشروع محتاج يكلم قاعدة البيانات.
+ * Firebase Configuration and Initialization.
+ * Initializes Firebase Auth, Firestore, and Storage using environment variables.
+ * Exports the initialized instances for use across the application.
  */
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";

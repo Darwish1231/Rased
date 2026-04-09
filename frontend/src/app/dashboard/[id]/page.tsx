@@ -26,9 +26,9 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
   const [report, setReport] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<any[]>([]); // For assignment
+  const [users, setUsers] = useState<any[]>([]); // For assignment functionality
   
-  // States for actions
+  // Action states (commenting, assigning)
   const [note, setNote] = useState("");
   const [isCommenting, setIsCommenting] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState("");
@@ -43,7 +43,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
     try {
       const token = await user.getIdToken();
       
-      // 1. Get Profile
+      // 1. Fetch user profile
       const profileRes = await fetch("/api-proxy/users/me", {
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -59,7 +59,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
         const data = await res.json();
         setReport(data.data);
       } else {
-        alert("البلاغ غير موجود");
+        alert("Incident report not found");
         router.push("/dashboard");
       }
 
@@ -140,7 +140,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
       {/* Top Navigation */}
       <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors group">
         <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
-        العودة للجدول
+        Back to Dashboard
       </button>
 
       {/* Hero Header */}
@@ -157,7 +157,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
              </span>
           </div>
           <p className="text-zinc-400 flex items-center gap-2">
-            <Calendar className="w-4 h-4" /> تم الإنشاء في: {new Date(report.createdAt).toLocaleString('en-GB')}
+            <Calendar className="w-4 h-4" /> Created on: {new Date(report.createdAt).toLocaleString('en-GB')}
           </p>
         </div>
       </div>
@@ -167,20 +167,20 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
         {/* Left Column: Media & Map */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="bg-zinc-900/50 border-zinc-800 p-6 rounded-3xl">
-             <h2 className="text-xl font-bold text-white mb-4">المحتوى المرئي والموقع</h2>
+             <h2 className="text-xl font-bold text-white mb-4">Media & Location</h2>
              
              {/* Media Gallery */}
              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                {report.media && report.media.length > 0 ? (
                  report.media.map((url: string, i: number) => (
                    <a key={i} href={url} target="_blank" className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-800 hover:scale-105 transition-transform">
-                      <img src={url} alt="مرفق" className="w-full h-full object-cover" />
+                      <img src={url} alt="Attachment" className="w-full h-full object-cover" />
                    </a>
                  ))
                ) : (
                  <div className="col-span-full h-32 flex flex-col items-center justify-center bg-zinc-950/50 rounded-2xl border border-dashed border-zinc-800 text-zinc-600">
                     <ImageIcon className="w-8 h-8 mb-2" />
-                    <span>لا توجد مرفقات صور</span>
+                    <span>No visual evidence provided</span>
                  </div>
                )}
              </div>
@@ -198,27 +198,27 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                   </GoogleMap>
                 ) : (
                   <div className="h-[250px] bg-zinc-950 flex items-center justify-center text-zinc-500">
-                    الموقع غير متاح (أو مفتاح الخريطة مفقود)
+                    Location unavailable (or API key missing)
                   </div>
                 )}
                 <div className="p-4 bg-zinc-900/80 text-sm text-emerald-400">
-                   📍 {report.location?.addressText || "الموقع المسجل على الخريطة"}
+                   📍 {report.location?.addressText || "Registered location on map"}
                 </div>
              </div>
           </Card>
 
           <Card className="bg-zinc-900/50 border-zinc-800 p-6 rounded-3xl">
-            <h2 className="text-xl font-bold text-white mb-4">وصف المشكلة</h2>
+            <h2 className="text-xl font-bold text-white mb-4">Problem Description</h2>
             <p className="text-zinc-300 leading-relaxed bg-zinc-950/30 p-4 rounded-xl border border-zinc-800">
               {report.description}
             </p>
             <div className="mt-4 flex gap-4">
                <div className="bg-zinc-800/50 px-4 py-2 rounded-xl border border-zinc-700">
-                  <span className="text-xs text-zinc-500 block">التصنيف</span>
+                  <span className="text-xs text-zinc-500 block">Category</span>
                   <span className="text-white font-bold">{report.category}</span>
                </div>
                <div className="bg-zinc-800/50 px-4 py-2 rounded-xl border border-zinc-700">
-                  <span className="text-xs text-zinc-500 block">الخطورة</span>
+                  <span className="text-xs text-zinc-500 block">Severity</span>
                   <span className={`font-bold ${report.severity === 'high' ? 'text-red-400' : 'text-blue-400'}`}>{report.severity}</span>
                </div>
             </div>
@@ -232,7 +232,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
           {(userProfile?.role === 'admin' || userProfile?.role === 'supervisor') && (
             <Card className="bg-blue-600/10 border-blue-500/20 p-6 rounded-3xl">
                <h3 className="text-lg font-bold text-blue-400 mb-4 flex items-center gap-2">
-                 <UserPlus className="w-5 h-5" /> تعيين فني للمهمة
+                 <UserPlus className="w-5 h-5" /> Assign Task to Technician
                </h3>
                <div className="space-y-3">
                  <select 
@@ -240,7 +240,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                    onChange={(e) => setSelectedTechnician(e.target.value)}
                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white text-sm"
                  >
-                    <option value="">اختر الفني...</option>
+                    <option value="">Select technician...</option>
                     {users.map(u => (
                       <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
                     ))}
@@ -250,7 +250,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                    disabled={isAssigning || !selectedTechnician}
                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50"
                  >
-                   {isAssigning ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "تعيين وتكليف"}
+                   {isAssigning ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "Assign & Notify"}
                  </button>
                </div>
             </Card>
@@ -259,18 +259,18 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
           {/* Timeline (PDF Requirement 3.4) */}
           <Card className="bg-zinc-900/50 border-zinc-800 p-6 rounded-3xl h-fit">
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <History className="w-5 h-5 text-zinc-400" /> الجدول الزمني (Timeline)
+              <History className="w-5 h-5 text-zinc-400" /> Incident Timeline
             </h2>
-            <div className="relative border-r-2 border-zinc-800 pr-6 mr-3 space-y-8">
+            <div className="relative border-l-2 border-zinc-800 pl-6 ml-3 space-y-8">
                {report.events?.map((ev: any, i: number) => (
                  <div key={ev.id} className="relative">
-                    <span className="absolute -right-[33px] top-1 w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-900 group-hover:bg-blue-500 transition-colors"></span>
+                    <span className="absolute -left-[33px] top-1 w-4 h-4 rounded-full bg-zinc-800 border-2 border-zinc-900 group-hover:bg-blue-500 transition-colors"></span>
                     <div className="space-y-1">
                        <p className="text-xs text-zinc-500" dir="ltr">{new Date(ev.createdAt).toLocaleString('en-GB')}</p>
                        <p className="text-sm font-bold text-zinc-200">
-                         {ev.action === 'create' ? '🔴 تم إنشاء البلاغ' : 
-                          ev.action === 'status_change' ? `🔄 تغيير الحالة إلى ${ev.toStatus}` : 
-                          ev.action === 'comment' ? '💬 إضافة تعليق' : '👷 تم تعيين البلاغ'}
+                         {ev.action === 'create' ? '🔴 Report Created' : 
+                          ev.action === 'status_change' ? `🔄 Status changed to ${ev.toStatus}` : 
+                          ev.action === 'comment' ? '💬 Comment added' : '👷 Technician assigned'}
                        </p>
                        {ev.note && <p className="text-xs text-zinc-400 italic bg-zinc-800/50 p-2 rounded-lg mt-1">"{ev.note}"</p>}
                     </div>
@@ -281,7 +281,7 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                <form onSubmit={handleAddComment} className="mt-6 pt-6 border-t border-zinc-800">
                   <div className="relative">
                     <textarea 
-                      placeholder="أضف تعليقاً أو ملاحظة..." 
+                      placeholder="Add a comment or note..." 
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm text-white resize-none"
                       rows={2}
                       value={note}
