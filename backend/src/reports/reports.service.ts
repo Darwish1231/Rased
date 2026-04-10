@@ -196,4 +196,47 @@ export class ReportsService {
 
     return { message: 'تم إضافة التعليق بنجاح' };
   }
+
+  /**
+   * Updates report details.
+   * Allowed only if the status is 'new' and the user is the reporter.
+   */
+  async updateReport(id: string, updateData: any, user: any) {
+    const db = this.firebaseService.getFirestore();
+    const reportRef = db.collection('reports').doc(id);
+    
+    const doc = await reportRef.get();
+    if (!doc.exists) throw new NotFoundException('البلاغ غير موجود');
+    
+    const report = doc.data();
+    
+    // Security check: Only the owner can edit, and only if status is 'new'
+    if (report?.reporterId !== user.uid) {
+      throw new Error('غير مسموح لك بتعديل هذا البلاغ');
+    }
+    
+    if (report?.status !== 'new') {
+      throw new Error('لا يمكن تعديل البلاغ بعد البدء في معالجته');
+    }
+
+    const updatedFields = {
+      description: updateData.description || report?.description,
+      category: updateData.category || report?.category,
+      severity: updateData.severity || report?.severity,
+      media: updateData.media || report?.media,
+      location: updateData.location || report?.location,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await reportRef.update(updatedFields);
+
+    await this.logReportEvent({
+      reportId: id,
+      action: 'comment', // Using comment action or similar to show an edit note
+      actorId: user.uid,
+      note: 'قام المستخدم بتعديل بيانات البلاغ'
+    });
+
+    return { message: 'تم تحديث البلاغ بنجاح', data: updatedFields };
+  }
 }

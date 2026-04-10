@@ -42,6 +42,13 @@ export class ReportsController {
     };
   }
 
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update report details (by reporter)' })
+  async updateReport(@Param('id') id: string, @Body() updateData: any, @Req() req: any) {
+    const result = await this.reportsService.updateReport(id, updateData, req.user);
+    return result;
+  }
+
   @Patch(':id/status')
   @Roles('admin', 'supervisor')
   @ApiOperation({ summary: 'Update the status of a report' })
