@@ -18,16 +18,9 @@ export class FirebaseService implements OnModuleInit {
         
         // Priority 1: Individual environment variables
         if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
-          console.log('Firebase: Initializing with individual environment variables');
+          console.log('Firebase: Strategy 1 (Individual Vars) initiated.');
           let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
           privateKey = privateKey.split('\\n').join('\n');
-          
-          if (!privateKey.includes('\n')) {
-             console.log('Firebase: Fixing flat private key format...');
-             privateKey = privateKey
-               .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
-               .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
-          }
           
           credential = admin.credential.cert({
             projectId: process.env.FIREBASE_PROJECT_ID.trim(),
@@ -37,24 +30,26 @@ export class FirebaseService implements OnModuleInit {
         } 
         // Priority 2: Full JSON credentials
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
-          console.log('Firebase: Initializing with FIREBASE_ADMIN_CREDENTIALS JSON');
-          const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
-          if (config.private_key) {
-            config.private_key = config.private_key.split('\\n').join('\n');
+          console.log('Firebase: Strategy 2 (Full JSON) initiated.');
+          try {
+            const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
+            if (config.private_key) {
+               config.private_key = config.private_key.split('\\n').join('\n');
+            }
+            credential = admin.credential.cert(config);
+          } catch (parseErr) {
+            console.error('Firebase: !!! JSON PARSE ERROR !!! Check your Vercel variable syntax.');
+            throw parseErr;
           }
-          credential = admin.credential.cert(config);
         }
         else {
-          console.error('Firebase: ERROR - Missing Environment Variables!');
-          console.log('PROJECT_ID:', !!process.env.FIREBASE_PROJECT_ID);
-          console.log('PRIVATE_KEY:', !!process.env.FIREBASE_PRIVATE_KEY);
-          console.log('CLIENT_EMAIL:', !!process.env.FIREBASE_CLIENT_EMAIL);
-          console.log('ADMIN_CREDENTIALS:', !!process.env.FIREBASE_ADMIN_CREDENTIALS);
-          throw new Error('Firebase configuration missing in Vercel settings.');
+          console.error('Firebase: ERROR - No credentials found in Vercel!');
+          console.log('Check: PROJECT_ID=', !!process.env.FIREBASE_PROJECT_ID, ' JSON=', !!process.env.FIREBASE_ADMIN_CREDENTIALS);
+          throw new Error('Missing environment variables.');
         }
         
         this.defaultApp = admin.initializeApp({ credential });
-        console.log('Firebase Admin Connected Successfully! 🔥 Project ID:', process.env.FIREBASE_PROJECT_ID || 'JSON_USED');
+        console.log('Firebase Admin Connected Successfully! 🔥');
       } catch (error) {
         console.error('Firebase Initialization ERROR:', error.message);
         throw new Error(`Failed to initialize Firebase: ${error.message}`);
