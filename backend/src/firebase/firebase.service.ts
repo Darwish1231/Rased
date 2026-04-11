@@ -21,9 +21,13 @@ export class FirebaseService implements OnModuleInit {
           console.log('Firebase: Initializing with individual environment variables');
           let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
           
-          // Clean and handle newline characters in the private key
-          privateKey = privateKey.replace(/\\n/g, '\n');
+          // CRITICAL FIX: Ensure ALL escaped newlines are converted to actual newlines
+          // This handles keys pasted as a single line with \n characters
+          privateKey = privateKey.split('\\n').join('\n');
+          
+          // Also handle cases where the key might have been pasted with literal newlines but missing the header/footer breaks
           if (!privateKey.includes('\n')) {
+             console.log('Firebase: Fixing flat private key format...');
              privateKey = privateKey
                .replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
                .replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
