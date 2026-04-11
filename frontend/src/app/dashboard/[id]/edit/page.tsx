@@ -201,14 +201,18 @@ export default function EditReportPage({ params: paramsPromise }: { params: Prom
   if (loading) return <div className="flex h-96 items-center justify-center"><Loader2 className="animate-spin w-10 h-10 text-blue-500" /></div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500" dir="rtl">
-      <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
-        <ArrowRight className="w-4 h-4" /> العودة
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700" dir="rtl">
+      <button onClick={() => router.back()} className="flex items-center gap-2 text-zinc-500 hover:text-white transition-all group">
+        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /> الرجوع للخلف
       </button>
 
-      <div className="flex flex-col items-start">
-        <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">تعديل البلاغ #{reportId.slice(-6)}</h1>
-        <p className="text-zinc-400 text-sm italic">يمكنك تعديل التفاصيل قبل البدء في معالجة البلاغ.</p>
+      <div className="flex flex-col items-start gap-2 bg-zinc-900/40 p-8 rounded-[2rem] border border-zinc-800/50 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors" />
+        <h1 className="text-4xl font-black text-white tracking-tight">تعديل بيانات البلاغ</h1>
+        <p className="text-zinc-400 text-sm font-medium flex items-center gap-2">
+           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+           يمكنك تعديل التفاصيل الأساسية والموقع طالما أن البلاغ لم يتم البدء في معالجته بعد.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

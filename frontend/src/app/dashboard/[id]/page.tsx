@@ -326,47 +326,73 @@ export default function ReportDetailsPage({ params: paramsPromise }: { params: P
                {/* Vertical line connector */}
                <div className="absolute top-2 bottom-2 right-[19px] w-[2px] bg-gradient-to-b from-blue-500/50 via-zinc-800 to-zinc-800/20 hidden sm:block" />
 
-               {report.events?.map((ev: any, i: number) => (
-                 <div key={ev.id || i} className="relative pr-12 pb-8 last:pb-0 group">
+              {report.events?.map((ev: any, i: number) => {
+                const isFirst = i === 0;
+                const isLast = i === (report.events.length - 1);
+                
+                // Color mapping for different actions
+                const actionColor = 
+                  ev.action === 'create' ? 'emerald' : 
+                  ev.action === 'status_change' ? 'blue' : 
+                  ev.action === 'assignment' ? 'purple' : 'zinc';
+
+                return (
+                  <div key={ev.id || i} className="relative pr-12 pb-10 last:pb-0 group">
+                    {/* Timeline Line Connector */}
+                    {!isLast && (
+                      <div className="absolute right-[19px] top-10 bottom-0 w-[2px] bg-zinc-800 group-hover:bg-zinc-700 transition-colors" />
+                    )}
+
                     {/* Timeline Dot/Icon */}
-                    <div className={`absolute right-0 top-1 w-10 h-10 rounded-xl border-4 border-zinc-900 z-10 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg
-                      ${ev.action === 'create' ? 'bg-emerald-500/20 text-emerald-400' : 
-                        ev.action === 'status_change' ? 'bg-blue-500/20 text-blue-400' : 
-                        ev.action === 'assignment' ? 'bg-purple-500/20 text-purple-400' : 
-                        'bg-zinc-800 text-zinc-400'}
+                    <div className={`absolute right-0 top-0 w-10 h-10 rounded-2xl border-4 border-zinc-950 z-10 flex items-center justify-center transition-all duration-300 shadow-xl group-hover:scale-110
+                      bg-${actionColor}-500/20 text-${actionColor}-400 group-hover:bg-${actionColor}-500 group-hover:text-white
                     `}>
                        {ev.action === 'create' ? <Plus className="w-4 h-4" /> : 
-                        ev.action === 'status_change' ? <Clock className="w-4 h-4" /> : 
-                        ev.action === 'assignment' ? <User className="w-4 h-4" /> : 
+                        ev.action === 'status_change' ? <ClipboardCheck className="w-4 h-4" /> : 
+                        ev.action === 'assignment' ? <UserPlus className="w-4 h-4" /> : 
                         <MessageSquare className="w-4 h-4" />}
                     </div>
 
-                    <div className="bg-zinc-950/40 p-4 rounded-2xl border border-zinc-800/50 hover:border-zinc-700/50 transition-all shadow-sm">
-                       <p className="text-[10px] text-zinc-500 font-mono mb-1" dir="ltr">
-                          {new Date(ev.createdAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                       </p>
-                       <p className="text-sm font-bold text-white">
-                         {ev.action === 'create' ? 'تم إنشاء البلاغ من قبل المستخدم' : 
+                    <div className="bg-zinc-900/40 p-5 rounded-3xl border border-zinc-800/50 hover:border-zinc-700/80 transition-all duration-300 shadow-sm relative overflow-hidden group-hover:translate-x-[-4px]">
+                       {/* Subtle accent line on hover */}
+                       <div className={`absolute top-0 bottom-0 right-0 w-1 bg-${actionColor}-500/0 group-hover:bg-${actionColor}-500 transition-all`} />
+
+                       <div className="flex justify-between items-start mb-2">
+                         <p className="text-[11px] text-zinc-500 font-bold bg-zinc-950/50 px-2 py-0.5 rounded-lg" dir="ltr">
+                            {new Date(ev.createdAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                         </p>
+                         <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter bg-${actionColor}-500/10 text-${actionColor}-400`}>
+                           {ev.action === 'create' ? 'إنشاء' : ev.action === 'status_change' ? 'تحديث' : ev.action === 'assignment' ? 'تكليف' : 'ملاحظة'}
+                         </span>
+                       </div>
+
+                       <p className="text-sm font-extrabold text-white leading-snug">
+                         {ev.action === 'create' ? 'تم تقديم البلاغ وتوثيقه في النظام' : 
                           ev.action === 'status_change' ? (
-                            <span className="flex items-center gap-1">
-                               تم التحديث لـ: 
-                               <span className="text-blue-400">{
-                                 ev.toStatus === 'new' ? 'جديد' : 
-                                 ev.toStatus === 'in_review' ? 'جاري الفحص' : 
-                                 ev.toStatus === 'assigned' ? 'تم التكليف' : 'تم الحل'
+                            <span className="flex items-center gap-2">
+                               تغيير حالة البلاغ بنجاح إلى: 
+                               <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-lg text-xs">{
+                                 ev.toStatus === 'new' ? 'جديد 🔴' : 
+                                 ev.toStatus === 'in_review' ? 'جاري الفحص ⏳' : 
+                                 ev.toStatus === 'assigned' ? 'تم التكليف 👷' : 'تم الحل ✅'
                                }</span>
                             </span>
                           ) : 
-                          ev.action === 'assignment' ? 'إحالة البلاغ لجهة فنية' : 'إضافة ملاحظة رسمية'}
+                          ev.action === 'assignment' ? 'إحالة البلاغ للمختص الفني للمتابعة' : 'إضافة تعليق رسمي على سجل البلاغ'}
                        </p>
+                       
                        {ev.note && (
-                         <div className="mt-3 p-3 bg-zinc-900/80 rounded-xl border-r-2 border-blue-500/30">
-                            <p className="text-xs text-zinc-400 italic leading-relaxed">"{ev.note}"</p>
+                         <div className="mt-4 p-4 bg-zinc-950/40 rounded-2xl border-r-4 border-zinc-800 group-hover:border-blue-500/50 transition-colors">
+                            <p className="text-sm text-zinc-400 font-medium leading-relaxed italic">
+                               <MessageSquare className="w-3 h-3 inline-block ml-2 opacity-40" />
+                               {ev.note}
+                            </p>
                          </div>
                        )}
                     </div>
-                 </div>
-               ))}
+                  </div>
+                );
+              })}
                
                {/* New Comment/Action Form */}
                {(userProfile?.role === 'admin' || userProfile?.role === 'supervisor') && (

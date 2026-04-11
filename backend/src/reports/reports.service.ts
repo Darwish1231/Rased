@@ -35,7 +35,7 @@ export class ReportsService {
 
       if (!fcmToken) {
         console.log(`No FCM token found for user ${uid}, skipping notification.`);
-        return;
+        throw new Error('لا يوجد كود إشعارات مسجل لهذا المتصفح. تأكد من تفعيل الإشعارات في الإعدادات.');
       }
 
       await this.firebaseService.getMessaging().send({
@@ -46,7 +46,20 @@ export class ReportsService {
       console.log(`Notification sent to user ${uid} successfully.`);
     } catch (err) {
       console.error(`Failed to send notification to ${uid}:`, err.message);
+      throw err;
     }
+  }
+
+  /**
+   * Exposes a test notification ability for debugging purposes.
+   */
+  async testNotification(uid: string) {
+    await this.sendPushNotification(
+      uid, 
+      'اختبار منصة راصد 🔔', 
+      'إذا كنت ترى هذا الإشعار، فهذا يعني أن نظام التنبيهات يعمل بنجاح!'
+    );
+    return { success: true, message: 'تم إرسال الإشعار بنجاح' };
   }
 
   /**
