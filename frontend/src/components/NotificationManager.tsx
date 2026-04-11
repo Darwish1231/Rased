@@ -21,7 +21,7 @@ export default function NotificationManager() {
         }
 
         const token = await getToken(messaging, {
-          vapidKey: "BKeN5D636e0536XGZlY5m0u3nQv86V5Y_2_XjI1_XW_2_XjI1_XW_2_XjI1_XW_2_XjI1_XW_2_XjI1_XW_2_XjI1" // This is a standard VAPID key placeholder or use yours
+          vapidKey: "BJqYbDSfg6344ofy_9rsZLgbYh3E9s7bWEMoIEghxov7aas4ENV048rYgQbwfBAZdXnAhei1Vje3rFP4Xm8XlT0"
         });
 
         if (token) {
