@@ -16,16 +16,12 @@ export class FirebaseService implements OnModuleInit {
       try {
         let credential;
         
-        // Priority 1: Individual environment variables (preferred for Vercel deployment)
+        // Priority 1: Individual environment variables
         if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
           console.log('Firebase: Initializing with individual environment variables');
           let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
-          
-          // CRITICAL FIX: Ensure ALL escaped newlines are converted to actual newlines
-          // This handles keys pasted as a single line with \n characters
           privateKey = privateKey.split('\\n').join('\n');
           
-          // Also handle cases where the key might have been pasted with literal newlines but missing the header/footer breaks
           if (!privateKey.includes('\n')) {
              console.log('Firebase: Fixing flat private key format...');
              privateKey = privateKey
@@ -39,19 +35,22 @@ export class FirebaseService implements OnModuleInit {
             privateKey: privateKey,
           });
         } 
-        // Priority 2: Full minified JSON credentials string
+        // Priority 2: Full JSON credentials
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
           console.log('Firebase: Initializing with FIREBASE_ADMIN_CREDENTIALS JSON');
           const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
           if (config.private_key) {
-            config.private_key = config.private_key.replace(/\\n/g, '\n');
+            config.private_key = config.private_key.split('\\n').join('\n');
           }
           credential = admin.credential.cert(config);
-        } else {
-          // Fallback: Local development service account file
-          console.log('Firebase: Attempting to use local service account file...');
-          const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
-          credential = admin.credential.cert(require(serviceAccountPath));
+        }
+        else {
+          console.error('Firebase: ERROR - Missing Environment Variables!');
+          console.log('PROJECT_ID:', !!process.env.FIREBASE_PROJECT_ID);
+          console.log('PRIVATE_KEY:', !!process.env.FIREBASE_PRIVATE_KEY);
+          console.log('CLIENT_EMAIL:', !!process.env.FIREBASE_CLIENT_EMAIL);
+          console.log('ADMIN_CREDENTIALS:', !!process.env.FIREBASE_ADMIN_CREDENTIALS);
+          throw new Error('Firebase configuration missing in Vercel settings.');
         }
         
         this.defaultApp = admin.initializeApp({ credential });
