@@ -17,6 +17,7 @@ export class FirebaseService implements OnModuleInit {
         
         // Priority 1: Individual environment variables (preferred for Vercel deployment)
         if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+          console.log('Firebase: Initializing with individual environment variables');
           let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
           
           // Clean and handle newline characters in the private key
@@ -35,6 +36,7 @@ export class FirebaseService implements OnModuleInit {
         } 
         // Priority 2: Full minified JSON credentials string
         else if (process.env.FIREBASE_ADMIN_CREDENTIALS) {
+          console.log('Firebase: Initializing with FIREBASE_ADMIN_CREDENTIALS JSON');
           const config = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
           if (config.private_key) {
             config.private_key = config.private_key.replace(/\\n/g, '\n');
@@ -42,6 +44,7 @@ export class FirebaseService implements OnModuleInit {
           credential = admin.credential.cert(config);
         } else {
           // Fallback: Local development service account file
+          console.log('Firebase: Attempting to use local service account file...');
           const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
           credential = admin.credential.cert(require(serviceAccountPath));
         }

@@ -20,6 +20,7 @@ export class AuthGuard implements CanActivate {
     const token = authHeader.split('Bearer ')[1];
 
     try {
+      console.log('AuthGuard: Verifying token...');
       // Verify the ID token using Firebase Admin SDK
       const decodedToken = await this.firebaseService.getAuth().verifyIdToken(token);
       request.user = decodedToken;
@@ -50,6 +51,7 @@ export class AuthGuard implements CanActivate {
       request.user.profile = profileData;
       return true;
     } catch (error) {
+      console.error('AuthGuard Error:', error.message);
       throw new UnauthorizedException(`Invalid authentication token: ${error.message}`);
     }
   }
