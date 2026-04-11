@@ -325,6 +325,7 @@ export default function DashboardHome() {
                         </div>
                       </div>
                     </td>
+                    <td className="p-5">
                       <div className="flex flex-col gap-2">
                         {/* Status Select/Badge */}
                         {(userProfile?.role === 'admin' || userProfile?.role === 'supervisor') ? (
@@ -367,6 +368,7 @@ export default function DashboardHome() {
                           عرض التفاصيل والسجل
                         </a>
                       </div>
+                    </td>
                   </tr>
                 ))
               )}
