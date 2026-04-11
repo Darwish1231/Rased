@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -53,5 +53,22 @@ export class UsersController {
     @Body('stationScopes') stationScopes: string[]
   ) {
     return this.usersService.updateUserRole(id, role, stationScopes);
+  }
+
+  /**
+   * Update the FCM token for the currently authenticated user.
+   */
+  @Patch('fcm-token')
+  async updateFcmToken(@Req() req: any, @Body('fcmToken') fcmToken: string) {
+    return this.usersService.updateFcmToken(req.user.uid, fcmToken);
+  }
+
+  /**
+   * Permanently delete a user (Admin access only).
+   */
+  @Delete(':id')
+  @Roles('admin')
+  async deleteUser(@Param('id') id: string) {
+    return this.usersService.deleteUser(id);
   }
 }

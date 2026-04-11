@@ -21,31 +21,31 @@ class CreateStationDto {
 }
 exports.CreateStationDto = CreateStationDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'ST-01', description: 'رقم المحطة التعريفي' }),
+    (0, swagger_1.ApiProperty)({ example: 'ST-01', description: 'Station identification number' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateStationDto.prototype, "number", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'محطة كهرباء المعادي', description: 'اسم المحطة' }),
+    (0, swagger_1.ApiProperty)({ example: 'Maadi Power Station', description: 'Name of the station' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateStationDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'South Cairo', description: 'المنطقة الجغرافية' }),
+    (0, swagger_1.ApiProperty)({ example: 'South Cairo', description: 'Geographical region' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateStationDto.prototype, "region", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: { lat: 30.123, lng: 31.456 }, description: 'إحداثيات المحطة' }),
+    (0, swagger_1.ApiProperty)({ example: { lat: 30.123, lng: 31.456 }, description: 'Geographical coordinates' }),
     (0, class_validator_1.IsObject)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Object)
 ], CreateStationDto.prototype, "location", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'active', enum: ['active', 'inactive'], description: 'حالة المحطة', required: false }),
+    (0, swagger_1.ApiProperty)({ example: 'active', enum: ['active', 'inactive'], description: 'Station operational status', required: false }),
     (0, class_validator_1.IsEnum)(['active', 'inactive']),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

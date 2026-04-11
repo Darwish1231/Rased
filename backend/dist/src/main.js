@@ -52,7 +52,7 @@ async function bootstrap() {
     }));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Rased Platform API')
-        .setDescription('مستندات دوال نظام راصد لإدارة بلاغات المحطات')
+        .setDescription('API documentation for the Rased incident management system')
         .setVersion('1.0')
         .addBearerAuth()
         .build();

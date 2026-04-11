@@ -3,6 +3,7 @@ export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
     getMyProfile(req: any): Promise<{
+        authEmail: any;
         id: string;
     }>;
     createProfile(body: any, req: any): Promise<{

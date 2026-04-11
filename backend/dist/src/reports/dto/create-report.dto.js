@@ -23,43 +23,43 @@ class CreateReportDto {
 }
 exports.CreateReportDto = CreateReportDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'ST-001_ID', description: 'معرف المحطة' }),
+    (0, swagger_1.ApiProperty)({ example: 'ST-001_ID', description: 'Station unique identifier' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateReportDto.prototype, "stationId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'محطة كهرباء المعادي', description: 'رقم/اسم المحطة', required: false }),
+    (0, swagger_1.ApiProperty)({ example: 'Maadi Power Station', description: 'Station name or number', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateReportDto.prototype, "stationNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'عطل كهربائي', description: 'تصنيف العطل' }),
+    (0, swagger_1.ApiProperty)({ example: 'Electrical Fault', description: 'Fault category' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateReportDto.prototype, "category", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'high', description: 'مستوى الخطورة' }),
+    (0, swagger_1.ApiProperty)({ example: 'high', description: 'Severity level (low, medium, high)' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateReportDto.prototype, "severity", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'انقطاع تام في المحول الرئيسي', description: 'وصف العطل' }),
+    (0, swagger_1.ApiProperty)({ example: 'Complete blackout in the main transformer', description: 'Detailed description of the fault' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateReportDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: { lat: 30.12, lng: 31.44 }, description: 'الموقع الجغرافي للعطل' }),
+    (0, swagger_1.ApiProperty)({ example: { lat: 30.12, lng: 31.44 }, description: 'Geographical coordinates of the incident' }),
     (0, class_validator_1.IsObject)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Object)
 ], CreateReportDto.prototype, "location", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: ['http://link-to-img.com/img.png'], description: 'روابط المرفقات', required: false }),
+    (0, swagger_1.ApiProperty)({ example: ['http://link-to-img.com/img.png'], description: 'Array of attachment URLs', required: false }),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)

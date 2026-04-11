@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const users_service_1 = require("./users.service");
 const auth_guard_1 = require("../auth/auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
@@ -24,7 +25,8 @@ let UsersController = class UsersController {
         this.usersService = usersService;
     }
     async getMyProfile(req) {
-        return this.usersService.getUserById(req.user.uid);
+        const profile = await this.usersService.getUserById(req.user.uid);
+        return { ...profile, authEmail: req.user.email };
     }
     async createProfile(body, req) {
         return this.usersService.createUserProfile(req.user.uid, {
@@ -73,6 +75,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateUserRole", null);
 exports.UsersController = UsersController = __decorate([
+    (0, swagger_1.ApiTags)('Users'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('users'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [users_service_1.UsersService])

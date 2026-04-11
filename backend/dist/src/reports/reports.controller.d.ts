@@ -21,10 +21,6 @@ export declare class ReportsController {
             id: string;
         };
     }>;
-    uploadFiles(files: Array<Express.Multer.File>): Promise<{
-        message: string;
-        urls: string[];
-    }>;
     getReports(req: any): Promise<{
         message: string;
         data: any;

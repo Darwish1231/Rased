@@ -32,7 +32,7 @@ let ReportsService = class ReportsService {
             stationId: reportData.stationId || '',
             stationNumber: reportData.stationNumber || '',
             description: reportData.description || '',
-            category: reportData.category || 'غيره',
+            category: reportData.category || 'other',
             severity: reportData.severity || 'low',
             media: reportData.media || [],
             location: reportData.location || { lat: 0, lng: 0 },
@@ -110,7 +110,7 @@ let ReportsService = class ReportsService {
             fromStatus: oldStatus,
             toStatus: status
         });
-        return { message: 'تم تحديث الحالة', id, status };
+        return { message: 'تم تحديث الحالة بنجاح', id, status };
     }
     async assignReport(id, assignedToUserId, user) {
         const db = this.firebaseService.getFirestore();
@@ -128,9 +128,9 @@ let ReportsService = class ReportsService {
             action: 'assignment',
             actorId: user.uid,
             toStatus: 'assigned',
-            note: `تم التعيين إلى المستخدم ${assignedToUserId}`
+            note: `تم التكليف للمستخدم ${assignedToUserId}`
         });
-        return { message: 'تم تعيين البلاغ بنجاح' };
+        return { message: 'تم تكليف البلاغ بنجاح' };
     }
     async addComment(id, note, user) {
         const db = this.firebaseService.getFirestore();

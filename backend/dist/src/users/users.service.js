@@ -19,17 +19,25 @@ let UsersService = class UsersService {
     }
     async getUserById(uid) {
         const db = this.firebaseService.getFirestore();
-        const doc = await db.collection('users').doc(uid).get();
+        const docRef = db.collection('users').doc(uid);
+        const doc = await docRef.get();
         if (!doc.exists) {
             throw new common_1.NotFoundException('المستخدم غير موجود');
         }
-        return { id: doc.id, ...doc.data() };
+        const data = doc.data() || {};
+        const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL || 'admin1@rased.com';
+        if (data.email && data.email.toLowerCase() === bootstrapEmail.toLowerCase() && data.role !== 'admin') {
+            await docRef.update({ role: 'admin' });
+            data.role = 'admin';
+            console.log(`User ${data.email} promoted to admin automatically via bootstrap! 👑`);
+        }
+        return { id: doc.id, ...data };
     }
     async createUserProfile(uid, data) {
         const db = this.firebaseService.getFirestore();
         const userRef = db.collection('users').doc(uid);
         const newProfile = {
-            fullName: data.fullName || 'مستخدم جديد',
+            fullName: data.fullName || 'New User',
             email: data.email || '',
             phone: data.phone || '',
             role: data.role || 'user',
@@ -51,7 +59,7 @@ let UsersService = class UsersService {
             role,
             stationScopes
         });
-        return { message: 'تم تحديث الصلاحيات بنجاح' };
+        return { message: 'تم تحديث صلاحية المستخدم بنجاح' };
     }
 };
 exports.UsersService = UsersService;

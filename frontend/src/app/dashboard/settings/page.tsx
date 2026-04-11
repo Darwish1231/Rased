@@ -20,6 +20,10 @@ export default function SettingsPage() {
   // New station form state
   const [newStation, setNewStation] = useState({ number: "", name: "", region: "" });
   const [isSavingStation, setIsSavingStation] = useState(false);
+  
+  // User Management extra states
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [isDeletingUser, setIsDeletingUser] = useState<string | null>(null);
 
   const fetchData = async (user: any) => {
     try {
@@ -166,6 +170,11 @@ export default function SettingsPage() {
     }
   };
 
+    } catch(err) {
+      console.error(err);
+    }
+  };
+  
   const handleDeleteStation = async (stationId: string) => {
     if (!confirm("هل أنت متأكد من رغبتك في حذف هذه المحطة نهائياً؟")) return;
     
@@ -185,6 +194,40 @@ export default function SettingsPage() {
       console.error(err);
     }
   };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (userId === auth.currentUser?.uid) {
+      alert("لا يمكنك حذف حسابك الخاص من هنا!");
+      return;
+    }
+    
+    if (!confirm("⚠️ تحذير: سيتم حذف هذا المستخدم نهائياً من النظام ومن سجلات الدخول. هل أنت متأكد؟")) return;
+    
+    setIsDeletingUser(userId);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api-proxy/users/${userId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        setUsers(users.filter(u => u.id !== userId));
+      } else {
+        alert("فشل في حذف المستخدم");
+      }
+    } catch(err) {
+      console.error(err);
+      alert("خطأ في الاتصال");
+    } finally {
+      setIsDeletingUser(userId === isDeletingUser ? null : isDeletingUser);
+    }
+  };
+
+  const filteredUsers = users.filter(u => 
+    (u.fullName || "").toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+    (u.email || "").toLowerCase().includes(userSearchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -220,11 +263,24 @@ export default function SettingsPage() {
 
       {/* Main Data Table Section */}
       <Card className="bg-zinc-900/40 border-zinc-800/50 rounded-[1.5rem] overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-zinc-800/80 bg-zinc-900/60 flex items-center gap-2">
-          <Users className="w-5 h-5 text-zinc-400" />
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            {users.length} مستخدم مسجل على المنصة
-          </h2>
+        <div className="p-6 border-b border-zinc-800/80 bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-zinc-400" />
+            <h2 className="text-lg font-bold text-white">
+              {users.length} مستخدم مسجل على المنصة
+            </h2>
+          </div>
+          
+          <div className="relative">
+             <Search className="w-4 h-4 text-zinc-500 absolute right-3 top-3.5" />
+             <input 
+               type="text" 
+               placeholder="بحث بالاسم أو البريد..." 
+               className="bg-zinc-950/80 border border-zinc-800 text-white text-sm rounded-xl h-11 pr-10 pl-4 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full md:w-[250px] transition-all"
+               value={userSearchQuery}
+               onChange={(e) => setUserSearchQuery(e.target.value)}
+             />
+          </div>
         </div>
 
         {/* The Table */}
@@ -240,7 +296,7 @@ export default function SettingsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/50 text-sm">
-              {users.map((u) => {
+              {filteredUsers.map((u) => {
                 const isEditing = editingUserId === u.id;
                 
                 return (
@@ -318,12 +374,22 @@ export default function SettingsPage() {
                           </button>
                         </div>
                       ) : (
-                        <button 
-                          onClick={() => handleStartEdit(u)}
-                          className="text-zinc-500 hover:text-blue-400 bg-zinc-800/50 hover:bg-zinc-800 px-4 py-2 rounded-lg text-xs font-bold transition-all"
-                        >
-                          تعديل الصلاحية
-                        </button>
+                        <div className="flex items-center justify-center gap-3">
+                          <button 
+                            onClick={() => handleStartEdit(u)}
+                            className="text-zinc-500 hover:text-blue-400 bg-zinc-800/50 hover:bg-zinc-800 px-4 py-2 rounded-lg text-xs font-bold transition-all"
+                          >
+                            تعديل الصلاحية
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteUser(u.id)}
+                            disabled={isDeletingUser === u.id}
+                            className="text-zinc-600 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all"
+                            title="حذف المستخدم"
+                          >
+                            {isDeletingUser === u.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>

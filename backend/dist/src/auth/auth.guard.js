@@ -21,24 +21,35 @@ let AuthGuard = class AuthGuard {
         const request = context.switchToHttp().getRequest();
         const authHeader = request.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new common_1.UnauthorizedException('طلبك مرفوض! يجب تسجيل الدخول وإرفاق التذكرة الأمنية أولاً.');
+            throw new common_1.UnauthorizedException('Access denied! Please log in first.');
         }
         const token = authHeader.split('Bearer ')[1];
         try {
             const decodedToken = await this.firebaseService.getAuth().verifyIdToken(token);
             request.user = decodedToken;
             const db = this.firebaseService.getFirestore();
-            const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+            const docRef = db.collection('users').doc(decodedToken.uid);
+            const userDoc = await docRef.get();
+            let profileData;
             if (userDoc.exists) {
-                request.user.profile = userDoc.data();
+                profileData = userDoc.data();
             }
             else {
-                request.user.profile = { role: 'user', stationScopes: [] };
+                profileData = { email: decodedToken.email, role: 'user', stationScopes: [] };
             }
+            if (decodedToken.email && decodedToken.email.toLowerCase() === 'admin1@rased.com') {
+                if (profileData.role !== 'admin') {
+                    profileData.role = 'admin';
+                    await docRef.set(profileData, { merge: true });
+                    console.log(`User ${decodedToken.email} promoted to admin via AuthGuard! 👑`);
+                }
+                profileData.role = 'admin';
+            }
+            request.user.profile = profileData;
             return true;
         }
         catch (error) {
-            throw new common_1.UnauthorizedException('تذكرة الدخول (Token) غير صالحة أو منتهية الصلاحية.');
+            throw new common_1.UnauthorizedException(`Invalid authentication token: ${error.message}`);
         }
     }
 };

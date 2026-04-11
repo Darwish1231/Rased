@@ -25,6 +25,31 @@ export class ReportsService {
   }
 
   /**
+   * Internal helper to send push notifications via FCM.
+   */
+  private async sendPushNotification(uid: string, title: string, body: string, data: any = {}) {
+    try {
+      const db = this.firebaseService.getFirestore();
+      const userDoc = await db.collection('users').doc(uid).get();
+      const fcmToken = userDoc.data()?.fcmToken;
+
+      if (!fcmToken) {
+        console.log(`No FCM token found for user ${uid}, skipping notification.`);
+        return;
+      }
+
+      await this.firebaseService.getMessaging().send({
+        token: fcmToken,
+        notification: { title, body },
+        data: { ...data, click_action: '/dashboard' },
+      });
+      console.log(`Notification sent to user ${uid} successfully.`);
+    } catch (err) {
+      console.error(`Failed to send notification to ${uid}:`, err.message);
+    }
+  }
+
+  /**
    * Creates a new incident report in the Firestore database.
    */
   async createReport(reportData: any, user: any) {
@@ -149,6 +174,23 @@ export class ReportsService {
       toStatus: status
     });
 
+    // Notify the reporter about status change
+    const reportData = doc.data();
+    if (reportData?.reporterId) {
+      const statusMap: any = {
+        'new': 'جديد',
+        'in_review': 'جاري الفحص',
+        'assigned': 'تم التكليف لفني',
+        'resolved': 'تم حل المشكلة ✅'
+      };
+      await this.sendPushNotification(
+        reportData.reporterId,
+        'تحديث في حالة بلاغك',
+        `تم تغيير حالة البلاغ رقم ${id.slice(-6)} إلى: ${statusMap[status] || status}`,
+        { reportId: id }
+      );
+    }
+
     return { message: 'تم تحديث الحالة بنجاح', id, status };
   }
 
@@ -175,6 +217,14 @@ export class ReportsService {
       toStatus: 'assigned',
       note: `تم التكليف للمستخدم ${assignedToUserId}`
     });
+
+    // Notify the technician they have been assigned a new report
+    await this.sendPushNotification(
+      assignedToUserId,
+      'تكليف جديد 👷',
+      `تم تكليفك بمعالجة البلاغ رقم ${id.slice(-6)}`,
+      { reportId: id }
+    );
 
     return { message: 'تم تكليف البلاغ بنجاح' };
   }

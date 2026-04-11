@@ -50,7 +50,7 @@ exports.StationsController = StationsController;
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)('admin'),
-    (0, swagger_1.ApiOperation)({ summary: 'إضافة محطة جديدة', description: 'متاح فقط لمدير النظام' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Add a new station', description: 'Available for system administrators only' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_station_dto_1.CreateStationDto]),
@@ -58,7 +58,7 @@ __decorate([
 ], StationsController.prototype, "createStation", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'جلب جميع المحطات', description: 'متاح للجميع' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Retrieve all stations', description: 'Available for all authenticated users' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -66,7 +66,7 @@ __decorate([
 __decorate([
     (0, common_1.Put)(':id'),
     (0, roles_decorator_1.Roles)('admin'),
-    (0, swagger_1.ApiOperation)({ summary: 'تعديل بيانات الحطة' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Update station details' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -76,7 +76,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, roles_decorator_1.Roles)('admin'),
-    (0, swagger_1.ApiOperation)({ summary: 'حذف محطة' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a station' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

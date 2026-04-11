@@ -23,7 +23,7 @@ let StationsService = class StationsService {
         if (stationData.stationNumber) {
             const existing = await stationsCollection.where('stationNumber', '==', stationData.stationNumber).get();
             if (!existing.empty) {
-                throw new common_1.BadRequestException('رقم المحطة موجود بالفعل (يجب أن يكون فريداً)');
+                throw new common_1.BadRequestException('رقم المحطة مسجل مسبقاً (يجب أن يكون فريداً)');
             }
         }
         const newStation = {

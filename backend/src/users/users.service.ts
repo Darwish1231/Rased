@@ -71,4 +71,34 @@ export class UsersService {
     
     return { message: 'تم تحديث صلاحية المستخدم بنجاح' };
   }
+
+  /**
+   * Update the FCM token for push notifications.
+   */
+  async updateFcmToken(uid: string, fcmToken: string) {
+    const db = this.firebaseService.getFirestore();
+    await db.collection('users').doc(uid).update({ fcmToken });
+    return { message: 'تم تحديث توكن الإشعارات بنجاح' };
+  }
+
+  /**
+   * Delete a user permanently from Firebase Auth and Firestore.
+   */
+  async deleteUser(uid: string) {
+    const db = this.firebaseService.getFirestore();
+    const auth = this.firebaseService.getAuth();
+    
+    // 1. Delete from Firebase Auth
+    try {
+      await auth.deleteUser(uid);
+    } catch (err) {
+      console.error(`Auth deletion failed for ${uid}:`, err.message);
+      // Even if auth fails (e.g. user already deleted from auth), we might want to continue deleting from firestore
+    }
+
+    // 2. Delete from Firestore
+    await db.collection('users').doc(uid).delete();
+    
+    return { message: 'تم حذف المستخدم نهائياً' };
+  }
 }

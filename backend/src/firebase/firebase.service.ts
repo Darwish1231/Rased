@@ -63,4 +63,8 @@ export class FirebaseService implements OnModuleInit {
   getFirestore() {
     return this.defaultApp.firestore();
   }
+
+  getMessaging() {
+    return this.defaultApp.messaging();
+  }
 }
