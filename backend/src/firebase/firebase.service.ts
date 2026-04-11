@@ -11,6 +11,7 @@ export class FirebaseService implements OnModuleInit {
   private defaultApp: admin.app.App;
 
   onModuleInit() {
+    console.log('--- Firebase Initialization Start ---');
     if (!admin.apps.length) {
       try {
         let credential;
@@ -50,8 +51,9 @@ export class FirebaseService implements OnModuleInit {
         }
         
         this.defaultApp = admin.initializeApp({ credential });
-        console.log('Firebase Admin Connected Successfully! 🔥');
+        console.log('Firebase Admin Connected Successfully! 🔥 Project ID:', process.env.FIREBASE_PROJECT_ID || 'JSON_USED');
       } catch (error) {
+        console.error('Firebase Initialization ERROR:', error.message);
         throw new Error(`Failed to initialize Firebase: ${error.message}`);
       }
     } else {

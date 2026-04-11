@@ -13,7 +13,13 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
 
+    console.log('--- Incoming Request Logs ---');
+    console.log('Path:', request.url);
+    console.log('Auth Header Present:', !!authHeader);
+    if (authHeader) console.log('Auth Header Format:', authHeader.substring(0, 15) + '...');
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn('AuthGuard: Missing or invalid Bearer header');
       throw new UnauthorizedException('Access denied! Please log in first.');
     }
 
