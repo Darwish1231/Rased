@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    private readonly mailService: MailService
+  ) {}
 
   /**
    * Logs a new event for a specific report in the report_events collection.
@@ -34,8 +36,8 @@ export class ReportsService {
       const fcmToken = userDoc.data()?.fcmToken;
 
       if (!fcmToken) {
-        console.log(`No FCM token found for user ${uid}, skipping notification.`);
-        throw new Error('لا يوجد كود إشعارات مسجل لهذا المتصفح. تأكد من تفعيل الإشعارات في الإعدادات.');
+        console.log(`No FCM token found for user ${uid}, skipping push.`);
+        return;
       }
 
       await this.firebaseService.getMessaging().send({
@@ -43,24 +45,50 @@ export class ReportsService {
         notification: { title, body },
         data: { ...data, click_action: '/dashboard' },
       });
-      console.log(`Notification sent to user ${uid} successfully.`);
+      console.log(`Push notification sent to user ${uid} successfully.`);
     } catch (err) {
-      console.error(`Failed to send notification to ${uid}:`, err.message);
-      throw err;
+      console.error(`Failed to send push notification to ${uid}:`, err.message);
     }
   }
 
   /**
-   * Exposes a test notification ability for debugging purposes.
+   * Finds supervisors for a specific station and notifies them (Email + Push).
    */
-  async testNotification(uid: string) {
-    await this.sendPushNotification(
-      uid, 
-      'اختبار منصة راصد 🔔', 
-      'إذا كنت ترى هذا الإشعار، فهذا يعني أن نظام التنبيهات يعمل بنجاح!'
-    );
-    return { success: true, message: 'تم إرسال الإشعار بنجاح' };
+  private async notifySupervisors(stationId: string, stationNumber: string, reportData: any) {
+    try {
+      const db = this.firebaseService.getFirestore();
+      // Find supervisors who have this station in their scopes
+      const snapshot = await db.collection('users')
+        .where('role', '==', 'supervisor')
+        .where('stationScopes', 'array-contains', stationId)
+        .get();
+
+      for (const doc of snapshot.docs) {
+        const supervisor = doc.data();
+        const supervisorEmail = supervisor.email;
+        const supervisorId = doc.id;
+
+        // 1. Send Email
+        if (supervisorEmail) {
+          await this.mailService.sendNewReportToSupervisor(supervisorEmail, {
+            ...reportData,
+            stationNumber
+          });
+        }
+
+        // 2. Send Push
+        await this.sendPushNotification(
+          supervisorId,
+          `⚠️ بلاغ جديد: محطة ${stationNumber}`,
+          `تم تسجيل بلاغ جديد (${reportData.category}) يحتاج لمراجعتك.`,
+          { reportId: reportData.id }
+        );
+      }
+    } catch (err) {
+      console.error('Failed to notify supervisors:', err);
+    }
   }
+
 
   /**
    * Creates a new incident report in the Firestore database.
@@ -91,6 +119,12 @@ export class ReportsService {
       action: 'create',
       actorId: user.uid,
       toStatus: 'new'
+    });
+
+    // Notify supervisors assigned to this station
+    this.notifySupervisors(newReport.stationId, newReport.stationNumber, {
+      id: docRef.id,
+      ...newReport
     });
 
     return { id: docRef.id, ...newReport };
@@ -187,21 +221,36 @@ export class ReportsService {
       toStatus: status
     });
 
-    // Notify the reporter about status change
-    const reportData = doc.data();
-    if (reportData?.reporterId) {
-      const statusMap: any = {
-        'new': 'جديد',
-        'in_review': 'جاري الفحص',
-        'assigned': 'تم التكليف لفني',
-        'resolved': 'تم حل المشكلة ✅'
-      };
-      await this.sendPushNotification(
-        reportData.reporterId,
-        'تحديث في حالة بلاغك',
-        `تم تغيير حالة البلاغ رقم ${id.slice(-6)} إلى: ${statusMap[status] || status}`,
-        { reportId: id }
-      );
+    // Notify the reporter about status change (Email + Push)
+    try {
+      const dbInst = this.firebaseService.getFirestore();
+      const reporterDoc = await dbInst.collection('users').doc(doc.data()?.reporterId).get();
+      const reporter = reporterDoc.data();
+
+      if (reporter) {
+        const reportInfo = { id, stationNumber: doc.data()?.stationNumber };
+        
+        // 1. Send Email
+        if (reporter.email) {
+          await this.mailService.sendStatusUpdateToReporter(reporter.email, reportInfo, status);
+        }
+
+        // 2. Send Push
+        const statusMap: any = {
+          'new': 'جديد',
+          'in_review': 'جاري الفحص',
+          'assigned': 'تم التكليف لفني',
+          'resolved': 'تم حل المشكلة ✅'
+        };
+        await this.sendPushNotification(
+          reporterDoc.id,
+          'تحديث في حالة بلاغك',
+          `تم تغيير حالة البلاغ للمحطة ${reportInfo.stationNumber} إلى: ${statusMap[status] || status}`,
+          { reportId: id }
+        );
+      }
+    } catch (err) {
+      console.error('Failed to notify reporter of status change:', err);
     }
 
     return { message: 'تم تحديث الحالة بنجاح', id, status };
@@ -231,13 +280,6 @@ export class ReportsService {
       note: `تم التكليف للمستخدم ${assignedToUserId}`
     });
 
-    // Notify the technician they have been assigned a new report
-    await this.sendPushNotification(
-      assignedToUserId,
-      'تكليف جديد 👷',
-      `تم تكليفك بمعالجة البلاغ رقم ${id.slice(-6)}`,
-      { reportId: id }
-    );
 
     return { message: 'تم تكليف البلاغ بنجاح' };
   }

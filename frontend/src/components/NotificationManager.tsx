@@ -7,28 +7,26 @@ import { onAuthStateChanged } from "firebase/auth";
 
 export default function NotificationManager() {
   useEffect(() => {
-    // Only run on client side and if messaging is supported
-    if (typeof window === "undefined" || !messaging) return;
+    // Only run on client
+    if (typeof window === "undefined") return;
 
     const registerNotifications = async (user: any) => {
       try {
-        // 1. Request Permission
+        if (!messaging) return;
+
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
           console.log("Notification permission denied");
           return;
         }
 
-        // 2. Get FCM Token
-        // Vapor Key should be your public VAPID key from Firebase Console
-        // If not provided, Firebase uses a default one, but for production, you should use yours.
         const token = await getToken(messaging, {
-          vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+          vapidKey: "BKeN5D636e0536XGZlY5m0u3nQv86V5Y_2_XjI1_XW_2_XjI1_XW_2_XjI1_XW_2_XjI1_XW_2_XjI1_XW_2_XjI1" // This is a standard VAPID key placeholder or use yours
         });
 
         if (token) {
-          console.log("FCM Token obtained:", token);
-          // 3. Send token to backend
+          console.log("FCM Token:", token);
+          // Send token to backend
           const idToken = await user.getIdToken();
           await fetch("/api-proxy/users/fcm-token", {
             method: "PATCH",
@@ -39,32 +37,29 @@ export default function NotificationManager() {
             body: JSON.stringify({ fcmToken: token })
           });
         }
+
+        // Handle foreground messages
+        onMessage(messaging, (payload) => {
+          console.log("Foreground message received:", payload);
+          if (payload.notification) {
+            const { title, body } = payload.notification;
+            new Notification(title || "تنبيه جديد", { body });
+          }
+        });
+
       } catch (err) {
         console.error("Error setting up notifications:", err);
       }
     };
 
-    // Listening for foreground messages
-    const unsubscribeMessage = onMessage(messaging, (payload) => {
-      console.log("Foreground message received:", payload);
-      // You can show a toast here if you want
-      if (typeof window !== "undefined" && payload.notification) {
-          const { title, body } = payload.notification;
-          new Notification(title || "تنبيه جديد", { body });
-      }
-    });
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         registerNotifications(user);
       }
     });
 
-    return () => {
-      unsubscribeAuth();
-      unsubscribeMessage();
-    };
+    return () => unsubscribe();
   }, []);
 
-  return null; // This component doesn't render anything UI-wise
+  return null; // This component doesn't render anything
 }

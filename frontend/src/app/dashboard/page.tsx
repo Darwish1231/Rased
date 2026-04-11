@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, Clock, Loader2, Search, Filter, ArrowUpDown, Bell, Send } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, Loader2, Search, Filter, ArrowUpDown } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -16,29 +16,6 @@ export default function DashboardHome() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [testingNotification, setTestingNotification] = useState(false);
-  
-  const handleTestNotification = async () => {
-    if (!auth.currentUser) return;
-    setTestingNotification(true);
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const res = await fetch("/api-proxy/reports/test-notification", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert("🔔 تم طلب إرسال الإشعار! إذا كنت قد فعلته في المتصفح، سيظهر لك الآن.");
-      } else {
-        alert(`فشل الإرسال: ${data.message || "تأكد من تفعيل الإشعارات أولاً"}`);
-      }
-    } catch (err) {
-      alert("خطأ في الاتصال بالخادم");
-    } finally {
-      setTestingNotification(false);
-    }
-  };
   
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -139,28 +116,6 @@ export default function DashboardHome() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500 slide-in-from-bottom-4" dir="rtl">
-      {/* Quick Test: Notifications */}
-      <Card className="bg-blue-600/5 border-blue-500/20 p-6 rounded-[2rem] shadow-xl border-dashed">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-right">
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
-              <Bell className="w-6 h-6 text-blue-400 animate-bounce" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-white italic">اختبار نظام التنبيهات (Beta) 🔔</h3>
-              <p className="text-zinc-400 text-xs">إذا قمت بتفعيل الإشعارات في المتصفح، اضغط هنا لتجربة وصولها الآن.</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleTestNotification}
-            disabled={testingNotification}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 active:scale-95 disabled:opacity-50"
-          >
-            {testingNotification ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            إرسال إشعار تجريبي الآن
-          </button>
-        </div>
-      </Card>
 
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-4">

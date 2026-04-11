@@ -14,9 +14,10 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { ReportsModule } from './reports/reports.module';
 import { StationsModule } from './stations/stations.module';
 import { UsersModule } from './users/users.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [FirebaseModule, ReportsModule, StationsModule, UsersModule],
+  imports: [FirebaseModule, ReportsModule, StationsModule, UsersModule, MailModule],
   controllers: [AppController],
   providers: [AppService],
 })

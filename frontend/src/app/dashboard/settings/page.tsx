@@ -11,29 +11,6 @@ export default function SettingsPage() {
   const [stations, setStations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [testingNotification, setTestingNotification] = useState(false);
-
-  const handleTestNotification = async () => {
-    if (!auth.currentUser) return;
-    setTestingNotification(true);
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const res = await fetch("/api-proxy/reports/test-notification", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert("🔔 تم طلب إرسال الإشعار! إذا كانت الإشعارات مفعلة في متصفحك، ستظهر لك الآن.");
-      } else {
-        alert(`فشل الإرسال: ${data.message || "تأكد من تفعيل الإشعارات أولاً"}`);
-      }
-    } catch (err) {
-      alert("خطأ في الاتصال بالخادم");
-    } finally {
-      setTestingNotification(false);
-    }
-  };
   
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState<string>("user");
@@ -267,29 +244,6 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500 slide-in-from-bottom-4" dir="rtl">
-      {/* Test Notifications Section */}
-      <Card className="bg-blue-600/5 border-blue-500/20 p-6 rounded-[2rem] shadow-xl border-dashed">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-right">
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center">
-              <Bell className="w-6 h-6 text-blue-400 animate-bounce" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-white">اختبار نظام التنبيهات</h3>
-              <p className="text-zinc-400 text-xs">تأكد من أنك قمت بـ "السماح" بالإشعارات في المتصفح قبل الضغط على الزر.</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleTestNotification}
-            disabled={testingNotification}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 active:scale-95 disabled:opacity-50"
-          >
-            {testingNotification ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            إرسال إشعار تجريبي لهاتفي/جهازي
-          </button>
-        </div>
-      </Card>
-
       {/* Header section */}
       <div className="flex items-center justify-between gap-4 mb-4">
         <div>

@@ -76,9 +76,4 @@ export class ReportsController {
     return result;
   }
 
-  @Post('test-notification')
-  @ApiOperation({ summary: 'Send a test push notification to the current user' })
-  async sendTestNotification(@Req() req: any) {
-    return this.reportsService.testNotification(req.user.uid);
-  }
 }

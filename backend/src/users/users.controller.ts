@@ -63,6 +63,7 @@ export class UsersController {
     return this.usersService.updateFcmToken(req.user.uid, fcmToken);
   }
 
+
   /**
    * Permanently delete a user (Admin access only).
    */
