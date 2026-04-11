@@ -192,11 +192,6 @@ export default function SettingsPage() {
       setIsSavingStation(false);
     }
   };
-
-    } catch(err) {
-      console.error(err);
-    }
-  };
   
   const handleDeleteStation = async (stationId: string) => {
     if (!confirm("هل أنت متأكد من رغبتك في حذف هذه المحطة نهائياً؟")) return;
